@@ -2315,11 +2315,11 @@ void PDFWriterImpl::endPage()
                 it->m_aBitmap = BitmapEx();
             }
         }
-        for( std::list<JPGEmit>::iterator jpeg = m_aJPGs.begin(); jpeg != m_aJPGs.end(); ++jpeg )
+        for( std::list<JPGEmit>::iterator jpeg = m_aJPEGs.begin(); jpeg != m_aJPEGs.end(); ++jpeg )
         {
             if( jpeg->m_pStream )
             {
-                writeJPG( *jpeg );
+                writeJPEG( *jpeg );
                 delete jpeg->m_pStream;
                 jpeg->m_pStream = nullptr;
                 jpeg->m_aMask = Bitmap();
@@ -10687,7 +10687,7 @@ bool PDFWriterImpl::writeGradientFunction( GradientEmit& rObject )
     return true;
 }
 
-void PDFWriterImpl::writeJPG( JPGEmit& rObject )
+void PDFWriterImpl::writeJPEG( JPGEmit& rObject )
 {
     CHECK_RETURN2( rObject.m_pStream );
     CHECK_RETURN2( updateObject( rObject.m_nObject ) );
@@ -10713,7 +10713,7 @@ void PDFWriterImpl::writeJPG( JPGEmit& rObject )
 
     }
     #if OSL_DEBUG_LEVEL > 1
-    emitComment( "PDFWriterImpl::writeJPG" );
+    emitComment( "PDFWriterImpl::writeJPEG" );
     #endif
 
     OStringBuffer aLine(200);
@@ -11075,9 +11075,9 @@ bool PDFWriterImpl::writeBitmapObject( BitmapEmit& rObject, bool bMask )
     return true;
 }
 
-void PDFWriterImpl::drawJPGBitmap( SvStream& rDCTData, bool bIsTrueColor, const Size& rSizePixel, const Rectangle& rTargetArea, const Bitmap& rMask )
+void PDFWriterImpl::drawJPEGBitmap( SvStream& rDCTData, bool bIsTrueColor, const Size& rSizePixel, const Rectangle& rTargetArea, const Bitmap& rMask )
 {
-    MARK( "drawJPGBitmap" );
+    MARK( "drawJPEGBitmap" );
 
     OStringBuffer aLine( 80 );
     updateGraphicsState();
@@ -11094,7 +11094,7 @@ void PDFWriterImpl::drawJPGBitmap( SvStream& rDCTData, bool bIsTrueColor, const 
         // need to convert to grayscale;
         // load stream to bitmap and draw the bitmap instead
         Graphic aGraphic;
-        GraphicConverter::Import( rDCTData, aGraphic, ConvertDataFormat::JPG );
+        GraphicConverter::Import( rDCTData, aGraphic, ConvertDataFormat::JPEG );
         Bitmap aBmp( aGraphic.GetBitmap() );
         if( !!rMask && rMask.GetSizePixel() == aBmp.GetSizePixel() )
         {
@@ -11119,12 +11119,12 @@ void PDFWriterImpl::drawJPGBitmap( SvStream& rDCTData, bool bIsTrueColor, const 
         aID.m_nMaskChecksum = rMask.GetChecksum();
 
     std::list< JPGEmit >::const_iterator it;
-    for( it = m_aJPGs.begin(); it != m_aJPGs.end() && ! (aID == it->m_aID); ++it )
+    for( it = m_aJPEGs.begin(); it != m_aJPEGs.end() && ! (aID == it->m_aID); ++it )
         ;
-    if( it == m_aJPGs.end() )
+    if( it == m_aJPEGs.end() )
     {
-        m_aJPGs.push_front( JPGEmit() );
-        JPGEmit& rEmit = m_aJPGs.front();
+        m_aJPEGs.push_front( JPGEmit() );
+        JPGEmit& rEmit = m_aJPEGs.front();
         rEmit.m_nObject     = createObject();
         rEmit.m_aID         = aID;
         rEmit.m_pStream     = pStream;
@@ -11132,7 +11132,7 @@ void PDFWriterImpl::drawJPGBitmap( SvStream& rDCTData, bool bIsTrueColor, const 
         if( !! rMask && rMask.GetSizePixel() == rSizePixel )
             rEmit.m_aMask   = rMask;
 
-        it = m_aJPGs.begin();
+        it = m_aJPEGs.begin();
     }
     else
         delete pStream;
