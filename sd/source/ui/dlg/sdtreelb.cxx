@@ -1118,7 +1118,7 @@ void SdPageObjsTLB::StartDrag( sal_Int8 nAction, const Point& rPosPixel)
     if (pEntry != nullptr
         && pNavWin !=nullptr
         && pNavWin == mpParent
-        && pNavWin->GetNavigatorDragType() != NAVIGATOR_DRAGTYPE_NONE )
+        && pNavWin->GetNavigatorDragType() != NavigatorDragType::None )
     {
         // Mark only the children of the page under the mouse as drop
         // targets.  This prevents moving shapes from one page to another.
@@ -1173,7 +1173,7 @@ void SdPageObjsTLB::DoDrag()
         INetBookmark    aBookmark( aURL, GetSelectEntry() );
         sal_Int8        nDNDActions = DND_ACTION_COPYMOVE;
 
-        if( eDragType == NAVIGATOR_DRAGTYPE_LINK )
+        if( eDragType == NavigatorDragType::Link )
             nDNDActions = DND_ACTION_LINK;  // Either COPY *or* LINK, never both!
         else if (mpDoc->GetSdPageCount(PageKind::Standard) == 1)
         {
@@ -1195,7 +1195,7 @@ void SdPageObjsTLB::DoDrag()
         sd::View* pView = pViewShell->GetView();
         if (pView == nullptr)
         {
-            OSL_ASSERT(pView!=nullptr);
+            SAL_WARN( "sd", "pView from pViewShell->GetView() is nil" );
             return;
         }
 

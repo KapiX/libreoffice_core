@@ -121,14 +121,14 @@ enum class DocumentType
     Draw
 };
 
-enum NavigatorDragType
+enum class NavigatorDragType
 {
-    NAVIGATOR_DRAGTYPE_NONE,
-    NAVIGATOR_DRAGTYPE_URL,
-    NAVIGATOR_DRAGTYPE_LINK,
-    NAVIGATOR_DRAGTYPE_EMBEDDED
+    None,
+    URL,
+    Link,
+    Embedded,
+    LAST = Embedded
 };
-#define NAVIGATOR_DRAGTYPE_COUNT 4
 
 #endif // INCLUDED_SD_INC_PRES_HXX
 

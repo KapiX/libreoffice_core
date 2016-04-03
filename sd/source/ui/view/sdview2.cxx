@@ -707,8 +707,8 @@ sal_Int8 View::ExecuteDrop( const ExecuteDropEvent& rEvt,
                     SdPageObjsTLB::SdPageObjsTransferable* pPageObjsTransferable = SdPageObjsTLB::SdPageObjsTransferable::getImplementation( aDataHelper.GetXTransferable() );
 
                     if( pPageObjsTransferable &&
-                        ( NAVIGATOR_DRAGTYPE_LINK == pPageObjsTransferable->GetDragType() ||
-                          NAVIGATOR_DRAGTYPE_EMBEDDED == pPageObjsTransferable->GetDragType() ) )
+                        ( NavigatorDragType::Link == pPageObjsTransferable->GetDragType() ||
+                          NavigatorDragType::Embedded == pPageObjsTransferable->GetDragType() ) )
                     {
                         // insert bookmark from own navigator (handled async. due to possible message box )
                         Application::PostUserEvent( LINK( this, View, ExecuteNavigatorDrop ),
@@ -833,7 +833,7 @@ IMPL_LINK( View, ExecuteNavigatorDrop, void*, p, void )
         /* In order t ensure unique page names, we test the ones we want to
            insert. If necessary. we put them into and replacement list (bNameOK
            == sal_False -> User canceled).  */
-        bool    bLink = pPageObjsTransferable->GetDragType() == NAVIGATOR_DRAGTYPE_LINK;
+        bool    bLink = pPageObjsTransferable->GetDragType() == NavigatorDragType::Link;
         bool    bNameOK = GetExchangeList( aExchangeList, aBookmarkList, 2 );
         bool    bReplace = false;
 
