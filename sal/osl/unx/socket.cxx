@@ -160,7 +160,9 @@ static const sal_uInt32 TypeMap[]= {
     SOCK_STREAM,                /* osl_Socket_TypeStream    */
     SOCK_DGRAM,                 /* osl_Socket_TypeDgram     */
     SOCK_RAW,                   /* osl_Socket_TypeRaw       */
+#ifndef HAIKU
     SOCK_RDM,                   /* osl_Socket_TypeRdm       */
+#endif
     SOCK_SEQPACKET,             /* osl_Socket_TypeSeqPacket */
     0                           /* osl_Socket_TypeInvalid   */
 };
@@ -339,7 +341,9 @@ static const struct
     { EPROTOTYPE,      osl_Socket_E_Prototype         }, /* Protocol wrong type for socket */
     { ENOPROTOOPT,     osl_Socket_E_NoProtocol        }, /* Protocol not available */
     { EPROTONOSUPPORT, osl_Socket_E_ProtocolNoSupport }, /* Protocol not supported */
+#ifndef HAIKU
     { ESOCKTNOSUPPORT, osl_Socket_E_TypeNoSupport     }, /* Socket type not supported */
+#endif
     { EOPNOTSUPP,      osl_Socket_E_OpNotSupport      }, /* Operation not supported on socket */
     { EPFNOSUPPORT,    osl_Socket_E_PfNoSupport       }, /* Protocol family not supported */
     { EAFNOSUPPORT,    osl_Socket_E_AfNoSupport       }, /* Address family not supported by */
@@ -356,7 +360,9 @@ static const struct
     { EISCONN,         osl_Socket_E_IsConnected       }, /* Socket is already connected */
     { ENOTCONN,        osl_Socket_E_NotConnected      }, /* Socket is not connected */
     { ESHUTDOWN,       osl_Socket_E_Shutdown          }, /* Can't send after socket shutdown */
+#ifndef HAIKU
     { ETOOMANYREFS,    osl_Socket_E_TooManyRefs       }, /* Too many references: can't splice */
+#endif
     { ETIMEDOUT,       osl_Socket_E_TimedOut          }, /* Connection timed out */
     { ECONNREFUSED,    osl_Socket_E_ConnRefused       }, /* Connection refused */
     { EHOSTDOWN,       osl_Socket_E_HostDown          }, /* Host is down */

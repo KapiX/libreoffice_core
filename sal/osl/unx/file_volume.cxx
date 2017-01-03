@@ -69,6 +69,12 @@
 #include <sys/mount.h>
 #define HAVE_STATFS_H
 
+#elif defined(HAIKU)
+
+#include <sys/param.h>
+#include <sys/statvfs.h>
+#define HAVE_STATFS_H
+
 #endif /* HAVE_STATFS_H */
 
 /************************************************************************
@@ -163,7 +169,7 @@ oslFileError osl_getVolumeInformation( rtl_uString* ustrDirectoryURL, oslVolumeI
 
 #   define OSL_detail_STATFS_IS_CASE_SENSITIVE_FS(a) (strcmp((a).f_fstypename, "msdos") != 0 && strcmp((a).f_fstypename, "ntfs") != 0 && strcmp((a).f_fstypename, "smbfs") != 0)
 #   define OSL_detail_STATFS_IS_CASE_PRESERVING_FS(a)    (strcmp((a).f_fstypename, "msdos") != 0)
-#endif /* NETBSD */
+#endif /* NETBSD || HAIKU */
 
 #if defined(LINUX)
 #   define OSL_detail_NFS_SUPER_MAGIC                 0x6969
@@ -172,6 +178,21 @@ oslFileError osl_getVolumeInformation( rtl_uString* ustrDirectoryURL, oslVolumeI
 #   define OSL_detail_NTFS_SUPER_MAGIC                0x5346544e
 #   define OSL_detail_STATFS_STRUCT                   struct statfs
 #   define OSL_detail_STATFS(dir, sfs)                statfs((dir), (sfs))
+#   define OSL_detail_STATFS_BLKSIZ(a)                ((sal_uInt64)((a).f_bsize))
+#   define OSL_detail_STATFS_IS_NFS(a)                (OSL_detail_NFS_SUPER_MAGIC == (a).f_type)
+#   define OSL_detail_STATFS_IS_SMB(a)                (OSL_detail_SMB_SUPER_MAGIC == (a).f_type)
+#   define OSL_detail_STATFS_ISREMOTE(a)              (OSL_detail_STATFS_IS_NFS((a)) || OSL_detail_STATFS_IS_SMB((a)))
+#   define OSL_detail_STATFS_IS_CASE_SENSITIVE_FS(a)  ((OSL_detail_MSDOS_SUPER_MAGIC != (a).f_type) && (OSL_detail_NTFS_SUPER_MAGIC != (a).f_type))
+#   define OSL_detail_STATFS_IS_CASE_PRESERVING_FS(a) ((OSL_detail_MSDOS_SUPER_MAGIC != (a).f_type))
+#endif /* LINUX */
+
+#if defined(HAIKU)
+#   define OSL_detail_NFS_SUPER_MAGIC                 0x6969
+#   define OSL_detail_SMB_SUPER_MAGIC                 0x517B
+#   define OSL_detail_MSDOS_SUPER_MAGIC               0x4d44
+#   define OSL_detail_NTFS_SUPER_MAGIC                0x5346544e
+#   define OSL_detail_STATFS_STRUCT                   struct statvfs
+#   define OSL_detail_STATFS(dir, sfs)                statvfs((dir), (sfs))
 #   define OSL_detail_STATFS_BLKSIZ(a)                ((sal_uInt64)((a).f_bsize))
 #   define OSL_detail_STATFS_IS_NFS(a)                (OSL_detail_NFS_SUPER_MAGIC == (a).f_type)
 #   define OSL_detail_STATFS_IS_SMB(a)                (OSL_detail_SMB_SUPER_MAGIC == (a).f_type)

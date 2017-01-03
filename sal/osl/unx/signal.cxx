@@ -86,8 +86,10 @@ struct SignalAction
     { SIGILL,    ACT_SYSTEM,  SIG_DFL },    /* illegal instruction (not reset when caught) */
 /* changed from ACT_ABOUT to ACT_SYSTEM to try and get collector to run*/
     { SIGTRAP,   ACT_ABORT,  SIG_DFL },    /* trace trap (not reset when caught) */
+#ifndef HAIKU
 #if ( SIGIOT != SIGABRT )
     { SIGIOT,    ACT_ABORT,  SIG_DFL },    /* IOT instruction */
+#endif
 #endif
     { SIGABRT,   ACT_ABORT,  SIG_DFL },    /* used by abort, replace SIGIOT in the future */
 #ifdef SIGEMT
@@ -382,9 +384,13 @@ void signalHandlerFunction(int signal)
         case SIGBUS:
         case SIGILL:
         case SIGSEGV:
+#ifdef HAIKU
+        case SIGABRT:
+#else
         case SIGIOT:
 #if ( SIGIOT != SIGABRT )
         case SIGABRT:
+#endif
 #endif
             Info.Signal = osl_Signal_AccessViolation;
             break;

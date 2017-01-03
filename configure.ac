@@ -788,6 +788,27 @@ freebsd*)
     _os=NetBSD
     ;;
 
+haiku*)
+    test_cups=no
+    test_dbus=no
+    test_randr=no
+    test_xrender=no
+    test_freetype=no
+    test_fontconfig=no
+    enable_java=no
+    enable_opengl=no
+    enable_odk=no
+    enable_gconf=no
+    enable_gnome_vfs=no
+    enable_gstreamer=no
+    enable_vlc=no
+    enable_harfbuzz=no
+    enable_graphite=no
+    test_gtk=no
+    enable_database_connectivity=no
+    _os=Haiku
+    ;;
+
 aix*)
     test_randr=no
     test_freetype=yes
@@ -4119,6 +4140,20 @@ dragonfly*)
         AC_MSG_ERROR([Unsupported host_cpu $host_cpu for host_os $host_os])
         ;;
     esac
+    ;;
+
+haiku*)
+    COM=GCC
+    USING_X11=
+    GUIBASE=haiku
+    RTL_OS=Haiku
+    OS=HAIKU
+    P_SEP=:
+
+    CPUNAME=INTEL
+    RTL_ARCH=x86
+    PLATFORMID=haiku_x86
+    OUTPATH=haiku
     ;;
 
 freebsd*)
