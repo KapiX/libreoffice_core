@@ -36,10 +36,12 @@ endif
 
 ifneq ($(ENABLE_HEADLESS),TRUE)
 
-ifneq ($(OS),WNT HAIKU)
+ifneq ($(OS),WNT)
+ifneq ($(OS),HAIKU)
 $(eval $(call gb_Executable_add_libs,oosplash,\
     -lX11 \
 ))
+endif
 endif
 
 $(eval $(call gb_Executable_add_defs,oosplash,\
@@ -62,6 +64,14 @@ ifeq ($(OS),SOLARIS)
 
 $(eval $(call gb_Executable_add_libs,oosplash,\
     -lsocket \
+))
+
+endif
+
+ifeq ($(OS),HAIKU)
+
+$(eval $(call gb_Executable_add_libs,oosplash,\
+    -lnetwork \
 ))
 
 endif

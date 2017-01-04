@@ -805,6 +805,7 @@ haiku*)
     enable_gltf=no
     enable_collada=no
     enable_coinmp=no
+    enable_pdfimport=no
     test_gtk=no
     enable_database_connectivity=no
     _os=Haiku

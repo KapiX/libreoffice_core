@@ -12,20 +12,25 @@ $(eval $(call gb_Module_Module,connectivity))
 
 $(eval $(call gb_Module_add_targets,connectivity,\
 	Configuration_calc \
-	Configuration_dbase \
 	Configuration_flat \
-	Configuration_mysql \
-	Configuration_odbc \
 	Library_calc \
-	Library_dbase \
 	Library_dbpool2 \
 	Library_dbtools \
 	Library_file \
 	Library_flat \
+))
+
+ifneq ($(OS),HAIKU)
+$(eval $(call gb_Module_add_targets,connectivity,\
+	Configuration_dbase \
+	Configuration_mysql \
+	Configuration_odbc \
+	Library_dbase \
 	Library_mysql \
 	$(if $(filter ANDROID IOS,$(OS)),,Library_odbc) \
 	Library_sdbc2 \
 ))
+endif
 
 $(eval $(call gb_Module_add_l10n_targets,connectivity,\
 	AllLangResTarget_cnr \
