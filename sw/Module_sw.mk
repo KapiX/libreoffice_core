@@ -43,7 +43,6 @@ $(eval $(call gb_Module_add_targets,sw,\
     Library_vbaswobj \
 ))
 
-endif
 
 $(eval $(call gb_Module_add_slowcheck_targets,sw,\
 	$(if $(and $(filter $(COM),MSC),$(MERGELIBS)),, \
@@ -86,6 +85,8 @@ ifneq ($(DISABLE_CVE_TESTS),TRUE)
 $(eval $(call gb_Module_add_slowcheck_targets,sw,\
     CppunitTest_sw_filters_test \
 ))
+endif
+
 endif
 
 ifneq ($(OOO_JUNIT_JAR),)

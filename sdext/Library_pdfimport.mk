@@ -32,7 +32,7 @@ $(eval $(call gb_Library_use_libraries,pdfimport,\
 $(eval $(call gb_Library_use_externals,pdfimport,\
 	boost_headers \
     zlib \
-    $(if $(filter-out WNT MACOSX,$(OS)),fontconfig) \
+    $(if $(filter-out WNT MACOSX HAIKU,$(OS)),fontconfig) \
 ))
 
 $(eval $(call gb_Library_add_defs,pdfimport, \

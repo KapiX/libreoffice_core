@@ -36,7 +36,7 @@
 
 #include "args.h"
 #include "pagein.h"
-#include "splashx.h"
+//#include "splashx.h"
 
 #define PIPEDEFAULTPATH      "/tmp"
 #define PIPEALTERNATEPATH    "/var/tmp"
@@ -721,6 +721,7 @@ void sigterm_handler(int ignored)
 
 SAL_IMPLEMENT_MAIN_WITH_ARGS( argc, argv )
 {
+#if 0
     sal_Bool bSentArgs = sal_False;
     const char* pUsePlugin;
     rtl_uString *pPipePath = NULL;
@@ -861,6 +862,8 @@ SAL_IMPLEMENT_MAIN_WITH_ARGS( argc, argv )
     args_free (args);
 
     return status;
+#endif
+    return 0;
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

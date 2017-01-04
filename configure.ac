@@ -793,8 +793,8 @@ haiku*)
     test_dbus=no
     test_randr=no
     test_xrender=no
-    test_freetype=no
-    test_fontconfig=no
+    test_freetype=yes
+    test_fontconfig=yes
     enable_java=no
     enable_opengl=no
     enable_odk=no
@@ -802,8 +802,9 @@ haiku*)
     enable_gnome_vfs=no
     enable_gstreamer=no
     enable_vlc=no
-    enable_harfbuzz=no
-    enable_graphite=no
+    enable_gltf=no
+    enable_collada=no
+    enable_coinmp=no
     test_gtk=no
     enable_database_connectivity=no
     _os=Haiku
@@ -5975,7 +5976,7 @@ if test "$GCC" = "yes" -o "$COM_IS_CLANG" = TRUE; then
     AC_MSG_CHECKING([whether $CC supports -fstack-protector-strong])
     save_CFLAGS=$CFLAGS
     CFLAGS="$CFLAGS -Werror -fstack-protector-strong"
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[ return 0; ]])],[ HAVE_GCC_STACK_PROTECTOR_STRONG=TRUE ],[])
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[ return 0; ]])],[ HAVE_GCC_STACK_PROTECTOR_STRONG= ],[])
     CFLAGS=$save_CFLAGS
     if test "$HAVE_GCC_STACK_PROTECTOR_STRONG" = "TRUE"; then
         AC_MSG_RESULT([yes])

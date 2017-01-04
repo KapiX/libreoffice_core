@@ -55,7 +55,7 @@ $(eval $(call gb_Library_use_system_win32_libs,sal,\
 ))
 
 $(eval $(call gb_Library_add_libs,sal,\
-	$(if $(and $(filter-out $(OS),WNT), $(filter-out $(OS),HAIKU)), \
+	$(if $(filter-out $(OS),WNT HAIKU), \
 		$(if $(filter $(OS),ANDROID),, \
 			-lpthread \
 		) \

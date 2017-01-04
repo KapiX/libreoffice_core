@@ -29,11 +29,13 @@ $(eval $(call gb_Module_add_check_targets,chart2,\
 	CppunitTest_chart2_common_functors \
 ))
 
+ifneq ($(filter SCRIPTING,$(BUILD_TYPE)),)
 $(eval $(call gb_Module_add_slowcheck_targets,chart2,\
     CppunitTest_chart2_export \
     CppunitTest_chart2_import \
     CppunitTest_chart2_trendcalculators \
 ))
+endif
 
 ifeq ($(ENABLE_CHART_TESTS),TRUE)
 $(eval $(call gb_Module_add_slowcheck_targets,chart2,\

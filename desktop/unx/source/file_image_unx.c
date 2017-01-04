@@ -85,8 +85,9 @@ int file_image_pagein (file_image * image)
     if (image->m_size == 0)
         return 0;
 
-    if (madvise (image->m_base, image->m_size, MADV_WILLNEED) == -1)
-        return errno;
+// FIXME HAIKU: lets break some more stuff
+    /*if (madvise (image->m_base, image->m_size, MADV_WILLNEED) == -1)
+        return errno;*/
 
     s = sysconf (_SC_PAGESIZE);
     if (s == -1)

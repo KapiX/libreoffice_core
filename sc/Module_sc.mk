@@ -38,7 +38,6 @@ $(eval $(call gb_Module_add_targets,sc,\
 	Library_vbaobj \
 ))
 
-endif
 
 $(eval $(call gb_Module_add_check_targets,sc,\
 	Library_scqahelper \
@@ -125,4 +124,5 @@ $(eval $(call gb_Module_add_screenshot_targets,sc,\
 	CppunitTest_sc_screenshots \
 ))
 
+endif
 # vim: set noet sw=4 ts=4:

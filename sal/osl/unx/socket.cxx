@@ -237,8 +237,8 @@ static oslSocketOption osl_SocketOptionFromNative(sal_uInt32 nativeType)
 /*****************************************************************************/
 
 static const sal_uInt32 OptionLevelMap[]= {
-    SOL_SOCKET,                 /* osl_Socket_LevelSocket  */
-    IPPROTO_TCP,                /* osl_Socket_LevelTcp     */
+    (sal_uInt32) SOL_SOCKET,                 /* osl_Socket_LevelSocket  */
+    (sal_uInt32) IPPROTO_TCP,                /* osl_Socket_LevelTcp     */
     0                           /* osl_Socket_LevelInvalid */
 };
 

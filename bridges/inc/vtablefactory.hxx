@@ -30,7 +30,9 @@
 
 /*See: http://people.redhat.com/drepper/selinux-mem.html*/
 #if defined(LINUX) || defined(OPENBSD) || defined(FREEBSD) \
-    || defined(NETBSD) || defined(DRAGONFLY) || defined (ANDROID)
+    || defined(NETBSD) || defined(DRAGONFLY) || defined (ANDROID) \
+    || defined(HAIKU)
+// this is probably not needed for haiku
 #define USE_DOUBLE_MMAP
 #endif
 

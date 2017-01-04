@@ -71,7 +71,7 @@
 
 #include "pdfwriter_impl.hxx"
 
-#if !defined(ANDROID) && !defined(IOS) && !defined(_WIN32)
+#if !defined(ANDROID) && !defined(IOS) && !defined(_WIN32) && !defined(HAIKU)
 // NSS headers for PDF signing
 #include "nss.h"
 #include "cert.h"
@@ -107,7 +107,7 @@ using namespace vcl;
 
 static bool g_bDebugDisableCompression = getenv("VCL_DEBUG_DISABLE_PDFCOMPRESSION");
 
-#if !defined(ANDROID) && !defined(IOS)
+#if !defined(ANDROID) && !defined(IOS) && !defined(HAIKU)
 // Is this length truly the maximum possible, or just a number that
 // seemed large enough when the author tested this (with some type of
 // certificates)? I suspect the latter.
@@ -5837,7 +5837,7 @@ bool PDFWriterImpl::emitCatalog()
         }
         aLine.append( "\n]" );
 
-#if !defined(ANDROID) && !defined(IOS)
+#if !defined(ANDROID) && !defined(IOS) && !defined(HAIKU)
         if (m_nSignatureObject != -1)
             aLine.append( "/SigFlags 3");
 #endif
@@ -5879,7 +5879,7 @@ bool PDFWriterImpl::emitCatalog()
     return true;
 }
 
-#if !defined(ANDROID) && !defined(IOS)
+#if !defined(ANDROID) && !defined(IOS) && !defined(HAIKU)
 
 bool PDFWriterImpl::emitSignature()
 {
@@ -5954,7 +5954,7 @@ bool PDFWriterImpl::emitSignature()
     return true;
 }
 
-#if !defined(ANDROID) && !defined(IOS) && !defined(_WIN32)
+#if !defined(ANDROID) && !defined(IOS) && !defined(_WIN32) && !defined(HAIKU)
 
 namespace {
 #if 0
@@ -6790,7 +6790,7 @@ NSSCMSMessage *CreateCMSMessage(PRTime* time,
 #endif
 } // anonymous namespace
 
-#endif // !defined(ANDROID) && !defined(IOS) && !defined(_WIN32)
+#endif // !defined(ANDROID) && !defined(IOS) && !defined(_WIN32) && !defined(HAIKU)
 
 #ifdef _WIN32
 
@@ -8711,7 +8711,7 @@ bool PDFWriterImpl::emit()
     // needed for widget tab order
     sortWidgets();
 
-#if !defined(ANDROID) && !defined(IOS)
+#if !defined(ANDROID) && !defined(IOS) && !defined(HAIKU)
     if( m_aContext.SignPDF )
     {
         // sign the document
@@ -8727,7 +8727,7 @@ bool PDFWriterImpl::emit()
     // emit catalog
     CHECK_RETURN( emitCatalog() );
 
-#if !defined(ANDROID) && !defined(IOS)
+#if !defined(ANDROID) && !defined(IOS) && !defined(HAIKU)
     if (m_nSignatureObject != -1) // if document is signed, emit sigdict
     {
         if( !emitSignature() )
@@ -8741,7 +8741,7 @@ bool PDFWriterImpl::emit()
     // emit trailer
     CHECK_RETURN( emitTrailer() );
 
-#if !defined(ANDROID) && !defined(IOS)
+#if !defined(ANDROID) && !defined(IOS) && !defined(HAIKU)
     if (m_nSignatureObject != -1) // finalize the signature
     {
         if( !finalizeSignature() )
@@ -13777,7 +13777,7 @@ sal_Int32 PDFWriterImpl::createControl( const PDFWriter::AnyWidget& rControl, sa
 
         createDefaultEditAppearance( rNewWidget, rEdit );
     }
-#if !defined(ANDROID) && !defined(IOS)
+#if !defined(ANDROID) && !defined(IOS) && !defined(HAIKU)
     else if( rControl.getType() == PDFWriter::Signature)
     {
         sigHidden = true;

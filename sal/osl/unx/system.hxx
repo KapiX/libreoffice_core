@@ -100,6 +100,7 @@
 /*#   define  IOCHANNEL_TRANSFER_BSD_RENO*/
 #   define  pthread_testcancel()
 #   define  NO_PTHREAD_PRIORITY
+#   define  NO_PTHREAD_RTL
 #   define  PTHREAD_SIGACTION           pthread_sigaction
 
 #   ifndef ETIME

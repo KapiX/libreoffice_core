@@ -194,11 +194,11 @@ oslFileError osl_getVolumeInformation( rtl_uString* ustrDirectoryURL, oslVolumeI
 #   define OSL_detail_STATFS_STRUCT                   struct statvfs
 #   define OSL_detail_STATFS(dir, sfs)                statvfs((dir), (sfs))
 #   define OSL_detail_STATFS_BLKSIZ(a)                ((sal_uInt64)((a).f_bsize))
-#   define OSL_detail_STATFS_IS_NFS(a)                (OSL_detail_NFS_SUPER_MAGIC == (a).f_type)
-#   define OSL_detail_STATFS_IS_SMB(a)                (OSL_detail_SMB_SUPER_MAGIC == (a).f_type)
+#   define OSL_detail_STATFS_IS_NFS(a)                (OSL_detail_NFS_SUPER_MAGIC == (a).f_fsid)
+#   define OSL_detail_STATFS_IS_SMB(a)                (OSL_detail_SMB_SUPER_MAGIC == (a).f_fsid)
 #   define OSL_detail_STATFS_ISREMOTE(a)              (OSL_detail_STATFS_IS_NFS((a)) || OSL_detail_STATFS_IS_SMB((a)))
-#   define OSL_detail_STATFS_IS_CASE_SENSITIVE_FS(a)  ((OSL_detail_MSDOS_SUPER_MAGIC != (a).f_type) && (OSL_detail_NTFS_SUPER_MAGIC != (a).f_type))
-#   define OSL_detail_STATFS_IS_CASE_PRESERVING_FS(a) ((OSL_detail_MSDOS_SUPER_MAGIC != (a).f_type))
+#   define OSL_detail_STATFS_IS_CASE_SENSITIVE_FS(a)  ((OSL_detail_MSDOS_SUPER_MAGIC != (a).f_fsid) && (OSL_detail_NTFS_SUPER_MAGIC != (a).f_fsid))
+#   define OSL_detail_STATFS_IS_CASE_PRESERVING_FS(a) ((OSL_detail_MSDOS_SUPER_MAGIC != (a).f_fsid))
 #endif /* LINUX */
 
 #if defined(SOLARIS)

@@ -19,7 +19,6 @@ $(eval $(call gb_Executable_add_cobjects,oosplash,\
     desktop/unx/source/args \
     desktop/unx/source/file_image_unx \
     desktop/unx/source/pagein \
-    desktop/unx/source/splashx \
     desktop/unx/source/start \
 ))
 
@@ -37,7 +36,7 @@ endif
 
 ifneq ($(ENABLE_HEADLESS),TRUE)
 
-ifneq ($(OS),WNT)
+ifneq ($(OS),WNT HAIKU)
 $(eval $(call gb_Executable_add_libs,oosplash,\
     -lX11 \
 ))

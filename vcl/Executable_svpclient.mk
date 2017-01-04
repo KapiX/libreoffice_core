@@ -31,6 +31,8 @@ $(eval $(call gb_Executable_use_libraries,svpclient,\
     comphelper \
 ))
 
+$(eval $(call gb_Executable_add_libs,svpclient,-lnetwork))
+
 $(eval $(call gb_Executable_add_exception_objects,svpclient,\
     vcl/workben/svpclient \
 ))

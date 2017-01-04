@@ -32,7 +32,7 @@
  *   control if it were composite).
  */
 
-enum class ControlType {
+enum class ControlType : int {
 // for use in general purpose ImplControlValue
     Generic            =   0,
 // Normal PushButton/Command Button
@@ -116,7 +116,7 @@ enum class ControlType {
  *   for example the slider of a scroll bar.
  */
 
-enum class ControlPart
+enum class ControlPart : int
 {
     NONE               = 0,
     Entire             = 1,
@@ -210,7 +210,7 @@ enum class ControlPart
  *   functions until an ENABLED or HIDDEN is passed
  *   in the ControlState.
  */
-enum class ControlState {
+enum class ControlState : int {
     NONE            = 0,
     ENABLED         = 0x0001,
     FOCUSED         = 0x0002,
@@ -225,6 +225,40 @@ namespace o3tl
 {
     template<> struct typed_flags<ControlState> : is_typed_flags<ControlState, 0xc06f> {};
 }
+
+#include <boost/functional/hash.hpp>
+
+namespace boost {
+
+template<>
+struct hash<ControlType>
+{
+    size_t operator() (const ControlType& x) const
+    {
+        return boost::hash_value(x);
+    }
+};
+
+template<>
+struct hash<ControlPart>
+{
+    size_t operator() (const ControlPart& x) const
+    {
+        return boost::hash_value(x);
+    }
+};
+
+template<>
+struct hash<ControlState>
+{
+    size_t operator() (const ControlState& x) const
+    {
+        return boost::hash_value(x);
+    }
+};
+
+}
+
 
 class ControlCacheKey
 {

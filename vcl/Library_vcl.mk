@@ -62,7 +62,7 @@ $(eval $(call gb_Library_use_externals,vcl,\
 	$(if $(filter LINUX MACOSX %BSD SOLARIS,$(OS)), \
 		curl) \
 	jpeg \
-	$(if $(filter-out IOS WNT,$(OS)), \
+	$(if $(filter-out IOS WNT HAIKU,$(OS)), \
 		nss3 \
 		plc4) \
 	libeot \
@@ -627,6 +627,7 @@ $(eval $(call gb_Library_use_externals,vcl,\
 ))
 endif
 else
+ifneq ($(OS),HAIKU)
  $(eval $(call gb_Library_add_exception_objects,vcl,\
 	vcl/opengl/DeviceInfo \
 	vcl/opengl/gdiimpl \
@@ -643,6 +644,7 @@ else
     vcl/source/opengl/OpenGLHelper \
     vcl/source/window/openglwin \
  ))
+endif
 ifeq ($(OS),LINUX)
 $(eval $(call gb_Library_add_libs,vcl,\
 	-lm \
@@ -652,6 +654,41 @@ $(eval $(call gb_Library_add_libs,vcl,\
     -lX11 \
 ))
 endif
+endif
+
+ifeq ($(OS),HAIKU)
+$(eval $(call gb_Library_add_exception_objects,vcl,\
+    vcl/unx/generic/printer/jobdata \
+    vcl/unx/generic/printer/ppdparser \
+    vcl/null/printerinfomanager \
+    vcl/unx/generic/glyphs/graphite_serverfont \
+    vcl/unx/generic/glyphs/freetype_glyphcache \
+    vcl/unx/generic/glyphs/gcach_layout \
+    vcl/unx/generic/glyphs/glyphcache \
+    vcl/unx/generic/fontmanager/fontsubst \
+    vcl/unx/generic/fontmanager/fontcache \
+    vcl/unx/generic/fontmanager/fontconfig \
+    vcl/unx/generic/fontmanager/fontmanager \
+    vcl/unx/generic/fontmanager/helper \
+    vcl/unx/generic/fontmanager/parseAFM \
+    vcl/unx/generic/print/bitmap_gfx \
+    vcl/unx/generic/print/common_gfx \
+    vcl/unx/generic/print/glyphset \
+    vcl/unx/generic/print/printerjob \
+    vcl/unx/generic/print/psputil \
+    vcl/unx/generic/print/genpspgraphics \
+    vcl/unx/generic/print/genprnpsp \
+    vcl/unx/generic/print/prtsetup \
+    vcl/unx/generic/print/text_gfx \
+    vcl/haiku/salinst \
+    vcl/haiku/gdi/cairotextrender \
+))
+
+$(eval $(call gb_Library_use_externals,vcl,\
+	fontconfig \
+	freetype \
+	expat \
+))
 endif
 
 ifeq ($(OS),ANDROID)
