@@ -577,7 +577,7 @@ $(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,ooo, \
 	package2 \
 	$(if $(USING_X11),recentfile) \
 	$(call gb_Helper_optional,SCRIPTING,scriptframe) \
-	sdbc2 \
+	$(call gb_Helper_optional,DBCONNECTIVITY,sdbc2) \
 	sofficeapp \
 	srtrs1 \
 	$(if $(filter $(OS),WNT),sysdtrans) \

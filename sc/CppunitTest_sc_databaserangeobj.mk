@@ -83,7 +83,8 @@ $(eval $(call gb_CppunitTest_use_components,sc_databaserangeobj,\
     sc/util/sc \
     sc/util/scd \
     sc/util/scfilt \
-    sc/util/vbaobj \
+    $(call gb_Helper_optional,SCRIPTING, \
+		/util/vbaobj) \
     sfx2/util/sfx \
     sot/util/sot \
     svl/source/fsstor/fsstorage \

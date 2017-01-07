@@ -71,7 +71,8 @@ $(eval $(call gb_Module_add_slowcheck_targets,sw,\
     CppunitTest_sw_odfexport \
     CppunitTest_sw_odfimport \
     CppunitTest_sw_uiwriter \
-    CppunitTest_sw_mailmerge \
+	$(call gb_Helper_optional,DBCONNECTIVITY, \
+		$(call gb_Helper_optional,DESKTOP,CppunitTest_sw_mailmerge)) \
     CppunitTest_sw_globalfilter \
 ))
 

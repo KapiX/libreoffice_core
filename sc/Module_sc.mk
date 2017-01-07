@@ -32,12 +32,11 @@ $(eval $(call gb_Module_add_targets,sc,\
 
 endif
 
-ifneq ($(filter SCRIPTING,$(BUILD_TYPE)),)
-
 $(eval $(call gb_Module_add_targets,sc,\
 	Library_vbaobj \
 ))
 
+ifneq (,$(filter DBCONNECTIVITY,$(BUILD_TYPE)))
 
 $(eval $(call gb_Module_add_check_targets,sc,\
 	Library_scqahelper \

@@ -18,6 +18,7 @@ $(eval $(call gb_Module_add_targets,connectivity,\
 	Library_dbtools \
 	Library_file \
 	Library_flat \
+	Library_sdbc2 \
 ))
 
 ifneq ($(OS),HAIKU)
@@ -28,7 +29,6 @@ $(eval $(call gb_Module_add_targets,connectivity,\
 	Library_dbase \
 	Library_mysql \
 	$(if $(filter ANDROID IOS,$(OS)),,Library_odbc) \
-	Library_sdbc2 \
 ))
 endif
 
