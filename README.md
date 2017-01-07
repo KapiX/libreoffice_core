@@ -11,6 +11,54 @@ download, use and distribute.
 
 A quick overview of the LibreOffice code structure.
 
+## Haiku build instructions
+
+1. Install required packages: haikuports/haikuports#108
+2. Put .pc files in /boot/system/non-packaged/develop/lib/pkg-config:
+
+gl.pc
+
+```
+prefix=/packages/gl-9.0.0-3/.self
+exec_prefix=${prefix}
+libdir=${prefix}/develop/lib
+includedir=${prefix}/develop/headers
+
+Name: gl
+Description: Mesa OpenGL library
+Version: 9.0.0
+Libs: -L${libdir} -lGL
+Libs.private: -lm
+```
+
+nss.pc
+
+```
+prefix=/packages/nss-3.23-1/.self
+exec_prefix=${prefix}
+libdir=${prefix}/develop/lib
+includedir=${prefix}/develop/headers
+
+Name: NSS
+Description: The NSS
+Version: 3.23
+Libs: -L/packages/nss-3.23-1/.self/develop/lib -lnss3 -lnssutil3 -lsmime3 -lssl3
+Cflags: -I/packages/nss-3.23-1/.self/develop/headers/nss
+
+```
+
+Otherwise `configure` will fail.
+
+3. Then:
+
+```
+export PKG_CONFIG_PATH="/boot/system/non-packaged/develop/lib/pkg-config:$PKG_CONFIG_PATH"
+./autogen.sh --with-distro=LibreOfficeHaiku --enable-debug
+make -j4
+```
+
+Currently unit tests fail: vcl_app_demo (cannot create UNO objects) and osl_pipe has some problems (?).
+
 ## Overview
 
 You can develop for LibreOffice in one of two ways, one
