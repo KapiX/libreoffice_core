@@ -59,6 +59,21 @@ make -j4
 
 Currently unit tests fail: vcl_app_demo (cannot create UNO objects) and osl_pipe has some problems (?).
 
+### Testing VCL implementation
+
+1. Copy svdemo from workdir/LinkTarget/Executable to instdir/program.
+2. Create svdemorc in instdir/program:
+
+```
+[Bootstrap]
+ORIGIN=/MoarData/libreoffice_core/instdir
+UNO_TYPES=${ORIGIN}/types.rdb ${URE_MORE_TYPES}
+UNO_SERVICES=${ORIGIN}/services.rdb ${URE_MORE_SERVICES}
+```
+
+3. In instdir/program run `LIBRARY_PATH=.:$LIBRARY_PATH svdemo`.
+4. svdemo crashes (expected).
+
 ## Overview
 
 You can develop for LibreOffice in one of two ways, one
