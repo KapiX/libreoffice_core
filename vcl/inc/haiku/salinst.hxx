@@ -17,14 +17,24 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#ifndef INCLUDED_VCL_INC_HAIKU_SALINST_H
-#define INCLUDED_VCL_INC_HAIKU_SALINST_H
+#ifndef INCLUDED_VCL_INC_HAIKU_SALINST_HXX
+#define INCLUDED_VCL_INC_HAIKU_SALINST_HXX
 
 #include <comphelper/solarmutex.hxx>
 #include <tools/solar.h>
 #include <osl/thread.hxx>
 #include <vclpluginapi.h>
 #include <salinst.hxx>
+
+#include <svsys.h>
+
+
+class HaikuApplication : public BApplication
+{
+public:
+    HaikuApplication() : BApplication("application/x-vnd.TDF.LibreOffice") {}
+    ~HaikuApplication() {}
+};
 
 
 class VCL_DLLPUBLIC SalYieldMutex : public comphelper::SolarMutex
@@ -51,6 +61,8 @@ class HaikuSalInstance : public SalInstance
 {
 private:
     SalYieldMutex*      mpSalYieldMutex;
+    HaikuApplication*   mpApplication;
+        // move to SalData?
 public:
     HaikuSalInstance();
     virtual ~HaikuSalInstance() override;
@@ -94,6 +106,6 @@ public:
     virtual OUString            getOSVersion() override;
 };
 
-#endif // INCLUDED_VCL_INC_HAIKU_SALINST_H
+#endif // INCLUDED_VCL_INC_HAIKU_SALINST_HXX
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

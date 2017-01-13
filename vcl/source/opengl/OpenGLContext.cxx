@@ -526,8 +526,8 @@ rtl::Reference<OpenGLContext> OpenGLContext::getVCLContext(bool bMakeIfNecessary
     if( !pContext && bMakeIfNecessary )
     {
         // create our magic fallback window context.
-        xContext = ImplGetDefaultContextWindow()->GetGraphics()->GetOpenGLContext();
-        assert(xContext.is());
+        //xContext = ImplGetDefaultContextWindow()->GetGraphics()->GetOpenGLContext();
+        //assert(xContext.is());
     }
     else
         xContext = pContext;

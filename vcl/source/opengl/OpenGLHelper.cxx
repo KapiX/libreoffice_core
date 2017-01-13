@@ -207,7 +207,7 @@ namespace
         OString aFragmentShaderSource = getShaderSource( rFragmentShaderName );
 
         // get info about the graphic device
-#if defined( SAL_UNX ) && !defined( MACOSX ) && !defined( IOS )&& !defined( ANDROID )
+#if defined( SAL_UNX ) && !defined( MACOSX ) && !defined( IOS )&& !defined( ANDROID ) && !defined( HAIKU )
         static const X11OpenGLDeviceInfo aInfo;
         static const OString aDeviceInfo (
                 aInfo.GetOS() +
@@ -773,7 +773,7 @@ bool OpenGLHelper::isDeviceBlacklisted()
     {
         OpenGLZone aZone;
 
-#if defined UNX && !defined MACOSX && !defined IOS && !defined ANDROID
+#if defined UNX && !defined MACOSX && !defined IOS && !defined ANDROID && !defined HAIKU
         X11OpenGLDeviceInfo aInfo;
         bBlacklisted = aInfo.isDeviceBlocked();
         SAL_INFO("vcl.opengl", "blacklisted: " << bBlacklisted);

@@ -7,15 +7,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#ifndef INCLUDED_VCL_INC_HAIKU_SVSYS_H
-#define INCLUDED_VCL_INC_HAIKU_SVSYS_H
+#ifndef INCLUDED_VCL_INC_OPENGL_HAIKU_DEVICEINFO_HXX
+#define INCLUDED_VCL_INC_OPENGL_HAIKU_DEVICEINFO_HXX
 
-#include <kernel/image.h>
-    // WA for https://dev.haiku-os.org/ticket/12178
+#include <vcl/dllapi.h>
 
-#include <Application.h>
-#include <Window.h>
+#include "opengl/DeviceInfo.hxx"
 
-#endif // INCLUDED_VCL_INC_HAIKU_SVSYS_H
+class VCL_DLLPUBLIC HaikuOpenGLDeviceInfo : public OpenGLDeviceInfo
+{
+public:
+    HaikuOpenGLDeviceInfo();
+    virtual ~HaikuOpenGLDeviceInfo() override;
+
+    virtual bool isDeviceBlocked() override;
+};
+
+#endif
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

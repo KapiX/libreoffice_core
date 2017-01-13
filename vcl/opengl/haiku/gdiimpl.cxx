@@ -7,15 +7,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#ifndef INCLUDED_VCL_INC_HAIKU_SVSYS_H
-#define INCLUDED_VCL_INC_HAIKU_SVSYS_H
+#include "opengl/haiku/gdiimpl.hxx"
 
-#include <kernel/image.h>
-    // WA for https://dev.haiku-os.org/ticket/12178
+HaikuOpenGLSalGraphicsImpl::HaikuOpenGLSalGraphicsImpl(SalGraphics& rParent, SalGeometryProvider *pProvider)
+    : OpenGLSalGraphicsImpl(rParent, pProvider)
+{
+}
 
-#include <Application.h>
-#include <Window.h>
-
-#endif // INCLUDED_VCL_INC_HAIKU_SVSYS_H
+HaikuOpenGLSalGraphicsImpl::~HaikuOpenGLSalGraphicsImpl()
+{
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
