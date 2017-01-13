@@ -806,8 +806,9 @@ haiku*)
     enable_collada=no
     enable_coinmp=no
     enable_pdfimport=no
+    enable_postgresql_sdbc=no
+    enable_firebird_sdbc=no
     test_gtk=no
-    enable_database_connectivity=no
     _os=Haiku
     ;;
 

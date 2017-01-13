@@ -120,6 +120,13 @@ $(eval $(call gb_CppunitTest_use_externals,vcl_wmf_test,\
 ))
 endif
 
+ifeq ($(OS),HAIKU)
+$(eval $(call gb_CppunitTest_use_externals,vcl_wmf_test,\
+    fontconfig \
+    freetype \
+))
+endif
+
 ifeq ($(ENABLE_HEADLESS),TRUE)
 $(eval $(call gb_CppunitTest_use_externals,vcl_wmf_test,\
     cairo \

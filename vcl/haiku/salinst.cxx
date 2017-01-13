@@ -13,7 +13,7 @@
 
 void InitSalData()   {}
 void DeInitSalData() {}
-void InitSalMain()   { fprintf(stderr, "InitSalMain"); }
+void InitSalMain()   { fprintf(stderr, "InitSalMain\n"); }
 
 void SalAbort( const OUString& rErrorText, bool bDumpCore )
 {
@@ -39,7 +39,7 @@ const OUString& SalGetDesktopEnvironment()
 // This is our main entry point:
 SalInstance *CreateSalInstance()
 {
-    fprintf(stderr, "Haiku: CreateSalInstance!");
+    fprintf(stderr, "Haiku: CreateSalInstance!\n");
     HaikuSalInstance* pInstance = new HaikuSalInstance();
     //new HaikuSalData( pInstance );
     pInstance->AcquireYieldMutex(1);
@@ -150,7 +150,7 @@ bool HaikuSalInstance::CheckYieldMutex()
 
 HaikuSalInstance::HaikuSalInstance()
 {
-    fprintf(stderr, "HaikuSalInstance ctor");
+    fprintf(stderr, "HaikuSalInstance ctor\n");
     mpSalYieldMutex = new SalYieldMutex();
 }
 
@@ -158,162 +158,162 @@ HaikuSalInstance::HaikuSalInstance()
 HaikuSalInstance::~HaikuSalInstance()
 {
     delete mpSalYieldMutex;
-    fprintf(stderr, "HaikuSalInstance dtor");
+    fprintf(stderr, "HaikuSalInstance dtor\n");
 }
 
 SalFrame* HaikuSalInstance::CreateChildFrame( SystemParentData* pParent, SalFrameStyleFlags nStyle )
 {
-    fprintf(stderr, "CreateChildFrame()");
+    fprintf(stderr, "CreateChildFrame()\n");
     return nullptr;
 }
 
 SalFrame* HaikuSalInstance::CreateFrame( SalFrame* pParent, SalFrameStyleFlags nStyle )
 {
-    fprintf(stderr, "CreateFrame()");
+    fprintf(stderr, "CreateFrame()\n");
     return nullptr;
 }
 
 void HaikuSalInstance::DestroyFrame( SalFrame* pFrame )
 {
-    fprintf(stderr, "DestroyFrame()");
+    fprintf(stderr, "DestroyFrame()\n");
 }
 
 SalObject* HaikuSalInstance::CreateObject( SalFrame* pParent, SystemWindowData* pWindowData, bool bShow )
 {
-    fprintf(stderr, "CreateObject()");
+    fprintf(stderr, "CreateObject()\n");
     return nullptr;
 }
 
 void HaikuSalInstance::DestroyObject( SalObject* pObject )
 {
-    fprintf(stderr, "DestroyObject()");
+    fprintf(stderr, "DestroyObject()\n");
 }
 
 SalVirtualDevice* HaikuSalInstance::CreateVirtualDevice( SalGraphics* pGraphics,
                                                          long &nDX, long &nDY,
                                                          DeviceFormat eFormat, const SystemGraphicsData *pData )
 {
-    fprintf(stderr, "CreateVirtualDevice()");
+    fprintf(stderr, "CreateVirtualDevice()\n");
     return nullptr;
 }
 
 SalInfoPrinter* HaikuSalInstance::CreateInfoPrinter( SalPrinterQueueInfo* pQueueInfo,
                                                      ImplJobSetup* pSetupData )
 {
-    fprintf(stderr, "CreateInfoPrinter()");
+    fprintf(stderr, "CreateInfoPrinter()\n");
     return nullptr;
 }
 
 void HaikuSalInstance::DestroyInfoPrinter( SalInfoPrinter* pPrinter )
 {
-    fprintf(stderr, "DestroyInfoPrinter()");
+    fprintf(stderr, "DestroyInfoPrinter()\n");
 }
 
 SalPrinter* HaikuSalInstance::CreatePrinter( SalInfoPrinter* pInfoPrinter )
 {
-    fprintf(stderr, "CreatePrinter()");
+    fprintf(stderr, "CreatePrinter()\n");
     return nullptr;
 }
 
 void HaikuSalInstance::DestroyPrinter( SalPrinter* pPrinter )
 {
-    fprintf(stderr, "DestroyPrinter()");
+    fprintf(stderr, "DestroyPrinter()\n");
 }
 
 void HaikuSalInstance::GetPrinterQueueInfo( ImplPrnQueueList* pList )
 {
-    fprintf(stderr, "GetPrinterQueueInfo()");
+    fprintf(stderr, "GetPrinterQueueInfo()\n");
 }
 
 void HaikuSalInstance::GetPrinterQueueState( SalPrinterQueueInfo* pInfo )
 {
-    fprintf(stderr, "GetPrinterQueueState()");
+    fprintf(stderr, "GetPrinterQueueState()\n");
 }
 
 void HaikuSalInstance::DeletePrinterQueueInfo( SalPrinterQueueInfo* pInfo )
 {
-    fprintf(stderr, "DeletePrinterQueueInfo()");
+    fprintf(stderr, "DeletePrinterQueueInfo()\n");
 }
 
 OUString HaikuSalInstance::GetDefaultPrinter()
 {
-    fprintf(stderr, "GetDefaultPrinter()");
-    return OUString("default");
+    fprintf(stderr, "GetDefaultPrinter()\n");
+    return OUString("default\n");
 }
 
 SalTimer* HaikuSalInstance::CreateSalTimer()
 {
-    fprintf(stderr, "CreateSalTimer()");
+    fprintf(stderr, "CreateSalTimer()\n");
     return nullptr;
 }
 
 SalSystem* HaikuSalInstance::CreateSalSystem()
 {
-    fprintf(stderr, "CreateSalSystem()");
+    fprintf(stderr, "CreateSalSystem()\n");
     return nullptr;
 }
 
 SalBitmap* HaikuSalInstance::CreateSalBitmap()
 {
-    fprintf(stderr, "CreateSalBitmap()");
+    fprintf(stderr, "CreateSalBitmap()\n");
     return nullptr;
 }
 
 SalYieldResult HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvents, sal_uLong nReleased)
 {
-    fprintf(stderr, "DoYield()");
+    fprintf(stderr, "DoYield()\n");
     return SalYieldResult::EVENT;
 }
 
 bool HaikuSalInstance::AnyInput( VclInputFlags nType )
 {
-    fprintf(stderr, "AnyInput()");
+    fprintf(stderr, "AnyInput()\n");
     return false;
 }
 
 SalMenu* HaikuSalInstance::CreateMenu( bool bMenuBar, Menu* )
 {
-    fprintf(stderr, "CreateMenu()");
+    fprintf(stderr, "CreateMenu()\n");
     return nullptr;
 }
 
 void HaikuSalInstance::DestroyMenu( SalMenu* )
 {
-    fprintf(stderr, "DestroyMenu()");
+    fprintf(stderr, "DestroyMenu()\n");
 }
 
 SalMenuItem* HaikuSalInstance::CreateMenuItem( const SalItemParams* pItemData )
 {
-    fprintf(stderr, "CreateMenuItem()");
+    fprintf(stderr, "CreateMenuItem()\n");
     return nullptr;
 }
 
 void HaikuSalInstance::DestroyMenuItem( SalMenuItem* )
 {
-    fprintf(stderr, "DestroyMenuItem()");
+    fprintf(stderr, "DestroyMenuItem()\n");
 }
 
 SalSession* HaikuSalInstance::CreateSalSession()
 {
-    fprintf(stderr, "CreateSalSession()");
+    fprintf(stderr, "CreateSalSession()\n");
     return nullptr;
 }
 
 OpenGLContext* HaikuSalInstance::CreateOpenGLContext()
 {
-    fprintf(stderr, "CreateOpenGLContext()");
+    fprintf(stderr, "CreateOpenGLContext()\n");
     return nullptr;
 }
 
 void* HaikuSalInstance::GetConnectionIdentifier( ConnectionIdentifierType& rReturnedType, int& rReturnedBytes )
 {
-    fprintf(stderr, "GetConnectionIdentifier()");
+    fprintf(stderr, "GetConnectionIdentifier()\n");
     return nullptr;
 }
 
 void HaikuSalInstance::AddToRecentDocumentList(const OUString& rFileUrl, const OUString& rMimeType, const OUString& rDocumentService)
 {
-    fprintf(stderr, "AddToRecentDocumentList()");
+    fprintf(stderr, "AddToRecentDocumentList()\n");
 }
 
 OUString HaikuSalInstance::getOSVersion()

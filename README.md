@@ -61,18 +61,9 @@ Currently unit tests fail: vcl_app_demo (cannot create UNO objects) and osl_pipe
 
 ### Testing VCL implementation
 
-1. Copy svdemo from workdir/LinkTarget/Executable to instdir/program.
-2. Create svdemorc in instdir/program:
-
-```
-[Bootstrap]
-ORIGIN=/MoarData/libreoffice_core/instdir
-UNO_TYPES=${ORIGIN}/types.rdb ${URE_MORE_TYPES}
-UNO_SERVICES=${ORIGIN}/services.rdb ${URE_MORE_SERVICES}
-```
-
-3. In instdir/program run `LIBRARY_PATH=.:$LIBRARY_PATH svdemo`.
-4. svdemo crashes (expected).
+1. `bin/run svdemo` or `LO_TRACE=Debugger bin/run svdemo`.
+Note: if you want to use Debugger you have to strip debug symbols.
+2. svdemo crashes (expected).
 
 ## Overview
 

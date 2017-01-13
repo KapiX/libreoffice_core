@@ -10,7 +10,8 @@
 #please make generic modifications to unxgcc.mk or linux.mk
 gb_CPUDEFS := -DX86
 gb_COMPILEROPTFLAGS := -Os
+gb_LinkTarget_LDFLAGS += -fdebug-types-section
 
-include $(GBUILDDIR)/platform/linux.mk
+include $(GBUILDDIR)/platform/haiku.mk
 
 # vim: set noet sw=4:
