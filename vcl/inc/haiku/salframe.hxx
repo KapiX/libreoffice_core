@@ -23,12 +23,20 @@
 #include <salframe.hxx>
 #include <svsys.h>
 
+class HaikuSalFrame;
 
 class HaikuWindow : public BWindow
 {
+private:
+    HaikuSalFrame* mpFrame;
 public:
-    HaikuWindow() : BWindow(BRect(10, 10, 100, 100), "VCLWindow", B_DOCUMENT_WINDOW, 0) {}
+    HaikuWindow(HaikuSalFrame* frame)
+        : BWindow(BRect(50, 50, 500, 500), "VCLWindow", B_DOCUMENT_WINDOW, 0),
+          mpFrame(frame)
+        {}
     ~HaikuWindow() {}
+
+    void FrameResized(float width, float height);
 };
 
 

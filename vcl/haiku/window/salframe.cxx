@@ -20,13 +20,20 @@
 #include "osl/thread.h"
 
 #include <haiku/salframe.hxx>
+#include <haiku/salgdi.hxx>
 
 #include <cstdio>
+
+void HaikuWindow::FrameResized(float width, float height)
+{
+    mpFrame->CallCallback(SalEvent::Resize, nullptr);
+    UpdateIfNeeded();
+}
 
 HaikuSalFrame::HaikuSalFrame()
 {
     fprintf(stderr, "HaikuSalFrame::HaikuSalFrame()\n");
-    mpWindow = new HaikuWindow();
+    mpWindow = new HaikuWindow(this);
 }
 
 HaikuSalFrame::~HaikuSalFrame()
@@ -38,7 +45,10 @@ HaikuSalFrame::~HaikuSalFrame()
 SalGraphics* HaikuSalFrame::AcquireGraphics()
 {
     fprintf(stderr, "HaikuSalFrame::AcquireGraphics()\n");
-    return nullptr;
+    BView* defView = new BView(mpWindow->Frame(), nullptr, B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+    mpWindow->AddChild(defView);
+    fprintf(stderr, "Children: %d\n", mpWindow->CountChildren());
+    return new HaikuSalGraphics(defView);
 }
 
 void HaikuSalFrame::ReleaseGraphics( SalGraphics* pGraphics )
@@ -114,6 +124,9 @@ void HaikuSalFrame::GetWorkArea( Rectangle &rRect )
 void HaikuSalFrame::GetClientSize( long& rWidth, long& rHeight )
 {
     fprintf(stderr, "HaikuSalFrame::GetClientSize()\n");
+    fprintf(stderr, "%f %f\n", mpWindow->Frame().Width(), mpWindow->Frame().Height());
+    rWidth = mpWindow->Frame().Width();
+    rHeight = mpWindow->Frame().Height();
 }
 
 void HaikuSalFrame::SetWindowState( const SalFrameState* pState )

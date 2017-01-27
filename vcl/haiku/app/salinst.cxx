@@ -9,6 +9,7 @@
 
 #include <comphelper/solarmutex.hxx>
 
+#include "haiku/salbmp.hxx"
 #include "haiku/salinst.hxx"
 #include "haiku/salframe.hxx"
 #include "haiku/saltimer.hxx"
@@ -260,7 +261,7 @@ SalSystem* HaikuSalInstance::CreateSalSystem()
 SalBitmap* HaikuSalInstance::CreateSalBitmap()
 {
     fprintf(stderr, "HaikuSalInstance::CreateSalBitmap()\n");
-    return nullptr;
+    return new HaikuSalBitmap();
 }
 
 SalYieldResult HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvents, sal_uLong nReleased)

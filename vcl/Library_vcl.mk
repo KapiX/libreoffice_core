@@ -682,6 +682,9 @@ $(eval $(call gb_Library_add_exception_objects,vcl,\
     vcl/unx/generic/print/prtsetup \
     vcl/unx/generic/print/text_gfx \
     vcl/haiku/app/salinst \
+    vcl/haiku/gdi/salbmp \
+    vcl/haiku/gdi/salgdi \
+    vcl/haiku/gdi/sallayout \
     vcl/haiku/gdi/cairotextrender \
     vcl/haiku/window/salframe \
 ))
