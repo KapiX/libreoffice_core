@@ -46,8 +46,6 @@
 
 HaikuSalGraphics::HaikuSalGraphics(BView* view)
 {
-    TRACE
-    printf("view %p\n", view);
     mpGlyphCache.reset(new GlyphCache);
     mpView = view;
 }
@@ -66,7 +64,6 @@ SalGraphicsImpl* HaikuSalGraphics::GetImpl() const
 
 void HaikuSalGraphics::GetResolution( sal_Int32& rDPIX, sal_Int32& rDPIY )
 {
-    TRACE
     rDPIX = 96;
     rDPIY = 96;
 }
@@ -75,12 +72,11 @@ void HaikuSalGraphics::GetResolution( sal_Int32& rDPIX, sal_Int32& rDPIY )
 sal_uInt16 HaikuSalGraphics::GetBitCount() const
 {
     TRACE
-    return 24;
+    return 32;
 }
 
 long HaikuSalGraphics::GetGraphicsWidth() const
 {
-    TRACE
     return 400;
 }
 
@@ -92,10 +88,8 @@ void HaikuSalGraphics::ResetClipRegion()
 
 void HaikuSalGraphics::SetLineColor()
 {
-    printf("SetLineColor: 0, 0, 0\n");
-    rgb_color color = { 0, 0, 0, 0 };
     if(mpView->Window()->LockLooper()) {
-        mpView->SetHighColor(color);
+        mpView->SetHighColor(0, 0, 0, 0);
         mpView->Window()->UnlockLooper();
     }
 }
@@ -106,7 +100,6 @@ void HaikuSalGraphics::SetLineColor( SalColor nSalColor )
     sal_uInt8 red = SALCOLOR_RED(nSalColor);
     sal_uInt8 green = SALCOLOR_GREEN(nSalColor);
     sal_uInt8 blue = SALCOLOR_BLUE(nSalColor);
-    printf("SetLineColor: %u, %u, %u\n", red, green, blue);
     if(mpView->Window()->LockLooper()) {
         mpView->SetHighColor(red, green, blue);
         mpView->Window()->UnlockLooper();
@@ -116,9 +109,8 @@ void HaikuSalGraphics::SetLineColor( SalColor nSalColor )
 
 void HaikuSalGraphics::SetFillColor()
 {
-    rgb_color color = { 0, 0, 0, 0 };
     if(mpView->Window()->LockLooper()) {
-        mpView->SetLowColor(color);
+        mpView->SetLowColor(0, 0, 0, 0);
         mpView->Window()->UnlockLooper();
     }
 }
@@ -129,10 +121,8 @@ void HaikuSalGraphics::SetFillColor( SalColor nSalColor )
     sal_uInt8 red = SALCOLOR_RED(nSalColor);
     sal_uInt8 green = SALCOLOR_GREEN(nSalColor);
     sal_uInt8 blue = SALCOLOR_BLUE(nSalColor);
-    printf("SetFillColor: %u, %u, %u\n", red, green, blue);
-    rgb_color color = { red, green, blue, 255 };
     if(mpView->Window()->LockLooper()) {
-        mpView->SetLowColor(color);
+        mpView->SetLowColor(red, green, blue);
         mpView->Window()->UnlockLooper();
     }
 }
@@ -314,13 +304,18 @@ void HaikuSalGraphics::updateSettingsNative( AllSettings& rSettings )
     TRACE
 }
 
-bool HaikuSalGraphics::setClipRegion( const vcl::Region& )
+bool HaikuSalGraphics::setClipRegion( const vcl::Region& region )
 {
-    TRACE
-    return true;
+    Rectangle rect = region.GetBoundRect();
+    BRegion r(BRect(rect.Left(), rect.Top(), rect.Right(), rect.Bottom()));
+    if(mpView->Window()->LockLooper()) {
+        mpView->ConstrainClippingRegion(&r);
+        mpView->Window()->UnlockLooper();
+        return true;
+    }
+    return false;
 }
 
-    // draw --> LineColor and FillColor and RasterOp and ClipRegion
 void HaikuSalGraphics::drawPixel( long nX, long nY )
 {
     TRACE
@@ -359,7 +354,6 @@ void HaikuSalGraphics::drawPolyLine( sal_uInt32 nPoints, const SalPoint* pPtAry 
 
 void HaikuSalGraphics::drawPolygon( sal_uInt32 nPoints, const SalPoint* pPtAry )
 {
-    TRACE
     std::vector<BPoint> points;
     for(sal_uInt32 i = 0; i < nPoints; i++) {
         points.push_back(BPoint(pPtAry[i].mnX, pPtAry[i].mnY));

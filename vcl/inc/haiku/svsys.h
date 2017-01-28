@@ -14,6 +14,8 @@
     // WA for https://dev.haiku-os.org/ticket/12178
 
 #include <Application.h>
+#include <Region.h>
+#include <View.h>
 #include <Window.h>
 
 #endif // INCLUDED_VCL_INC_HAIKU_SVSYS_H

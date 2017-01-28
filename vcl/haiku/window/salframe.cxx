@@ -27,7 +27,9 @@
 void HaikuWindow::FrameResized(float width, float height)
 {
     mpFrame->CallCallback(SalEvent::Resize, nullptr);
-    UpdateIfNeeded();
+    SalPaintEvent aPEvt(0, 0, Bounds().Width(), Bounds().Height());
+    aPEvt.mbImmediateUpdate = false;
+    mpFrame->CallCallback(SalEvent::Paint, &aPEvt);
 }
 
 HaikuSalFrame::HaikuSalFrame()
@@ -45,9 +47,8 @@ HaikuSalFrame::~HaikuSalFrame()
 SalGraphics* HaikuSalFrame::AcquireGraphics()
 {
     fprintf(stderr, "HaikuSalFrame::AcquireGraphics()\n");
-    BView* defView = new BView(mpWindow->Frame(), nullptr, B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+    BView* defView = new BView(mpWindow->Bounds(), nullptr, B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
     mpWindow->AddChild(defView);
-    fprintf(stderr, "Children: %d\n", mpWindow->CountChildren());
     return new HaikuSalGraphics(defView);
 }
 
@@ -63,7 +64,6 @@ bool HaikuSalFrame::PostEvent(ImplSVEvent* pData)
 
 void HaikuSalFrame::SetTitle( const OUString& rTitle )
 {
-    fprintf(stderr, "HaikuSalFrame::SetTitle()\n");
     OString aTitle(OUStringToOString(rTitle, osl_getThreadTextEncoding()));
     mpWindow->SetTitle(aTitle.getStr());
 }
@@ -90,8 +90,10 @@ void HaikuSalFrame::SetExtendedFrameStyle( SalExtStyle )
 
 void HaikuSalFrame::Show( bool bVisible, bool bNoActivate )
 {
-    fprintf(stderr, "HaikuSalFrame::Show()\n");
     mpWindow->Show();
+    SalPaintEvent aPEvt(0, 0, mpWindow->Bounds().Width(), mpWindow->Bounds().Height());
+    aPEvt.mbImmediateUpdate = false;
+    CallCallback(SalEvent::Paint, &aPEvt);
 }
 
 void HaikuSalFrame::SetMinClientSize( long nWidth, long nHeight )
@@ -105,7 +107,7 @@ void HaikuSalFrame::SetMaxClientSize( long nWidth, long nHeight )
 }
 
 void HaikuSalFrame::SetPosSize( long nX, long nY, long nWidth, long nHeight,
-                                                   sal_uInt16 nFlags )
+                                sal_uInt16 nFlags )
 {
     fprintf(stderr, "HaikuSalFrame::SetPosSize()\n");
 }
@@ -123,10 +125,8 @@ void HaikuSalFrame::GetWorkArea( Rectangle &rRect )
 
 void HaikuSalFrame::GetClientSize( long& rWidth, long& rHeight )
 {
-    fprintf(stderr, "HaikuSalFrame::GetClientSize()\n");
-    fprintf(stderr, "%f %f\n", mpWindow->Frame().Width(), mpWindow->Frame().Height());
-    rWidth = mpWindow->Frame().Width();
-    rHeight = mpWindow->Frame().Height();
+    rWidth = mpWindow->Bounds().Width();
+    rHeight = mpWindow->Bounds().Height();
 }
 
 void HaikuSalFrame::SetWindowState( const SalFrameState* pState )
@@ -178,6 +178,7 @@ void HaikuSalFrame::SetPointerPos( long nX, long nY )
 void HaikuSalFrame::Flush()
 {
     fprintf(stderr, "HaikuSalFrame::Flush()\n");
+    mpWindow->Flush();
 }
 
 void HaikuSalFrame::SetInputContext( SalInputContext* pContext )
