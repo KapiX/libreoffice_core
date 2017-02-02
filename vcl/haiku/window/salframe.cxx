@@ -24,12 +24,59 @@
 
 #include <cstdio>
 
-void HaikuWindow::FrameResized(float width, float height)
+HaikuView::HaikuView(BRect rect, HaikuSalFrame* pFrame)
+    :
+    BView(rect, nullptr, B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FRAME_EVENTS | B_FULL_UPDATE_ON_RESIZE),
+    mpFrame(pFrame)
 {
-    mpFrame->CallCallback(SalEvent::Resize, nullptr);
+}
+
+HaikuView::~HaikuView()
+{
+}
+
+void HaikuView::Draw(BRect updateRect)
+{
     SalPaintEvent aPEvt(0, 0, Bounds().Width(), Bounds().Height());
     aPEvt.mbImmediateUpdate = false;
     mpFrame->CallCallback(SalEvent::Paint, &aPEvt);
+}
+
+void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
+{
+    SalMouseEvent   aMouseEvt;
+    aMouseEvt.mnX       = point.x;
+    aMouseEvt.mnY       = point.y;
+    aMouseEvt.mnCode    = 0;
+    aMouseEvt.mnButton = 0;
+    mpFrame->CallCallback(SalEvent::MouseMove, &aMouseEvt);
+}
+
+void HaikuView::MouseDown(BPoint point)
+{
+    SalMouseEvent   aMouseEvt;
+    aMouseEvt.mnButton = MOUSE_LEFT;
+    aMouseEvt.mnX       = point.x;
+    aMouseEvt.mnY       = point.y;
+    aMouseEvt.mnCode    = 0;
+    aMouseEvt.mnButton = 0;
+    mpFrame->CallCallback(SalEvent::MouseButtonDown, &aMouseEvt);
+}
+
+void HaikuView::MouseUp(BPoint point)
+{
+    SalMouseEvent   aMouseEvt;
+    aMouseEvt.mnButton = MOUSE_LEFT;
+    aMouseEvt.mnX       = point.x;
+    aMouseEvt.mnY       = point.y;
+    aMouseEvt.mnCode    = 0;
+    aMouseEvt.mnButton = 0;
+    mpFrame->CallCallback(SalEvent::MouseButtonUp, &aMouseEvt);
+}
+
+void HaikuView::FrameResized(float width, float height)
+{
+    mpFrame->CallCallback(SalEvent::Resize, nullptr);
 }
 
 HaikuSalFrame::HaikuSalFrame()
@@ -41,13 +88,15 @@ HaikuSalFrame::HaikuSalFrame()
 HaikuSalFrame::~HaikuSalFrame()
 {
     fprintf(stderr, "HaikuSalFrame::~HaikuSalFrame()\n");
-    mpWindow->Quit();
+    //if(mpWindow->LockLooper()) {
+        mpWindow->Quit();
+    //}
 }
 
 SalGraphics* HaikuSalFrame::AcquireGraphics()
 {
     fprintf(stderr, "HaikuSalFrame::AcquireGraphics()\n");
-    BView* defView = new BView(mpWindow->Bounds(), nullptr, B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+    HaikuView* defView = new HaikuView(mpWindow->Bounds(), this);
     mpWindow->AddChild(defView);
     return new HaikuSalGraphics(defView);
 }
@@ -55,11 +104,13 @@ SalGraphics* HaikuSalFrame::AcquireGraphics()
 void HaikuSalFrame::ReleaseGraphics( SalGraphics* pGraphics )
 {
     fprintf(stderr, "HaikuSalFrame::ReleaseGraphics()\n");
+    delete pGraphics;
 }
 
 bool HaikuSalFrame::PostEvent(ImplSVEvent* pData)
 {
     fprintf(stderr, "HaikuSalFrame::PostEvent()\n");
+    return true;
 }
 
 void HaikuSalFrame::SetTitle( const OUString& rTitle )
@@ -91,9 +142,6 @@ void HaikuSalFrame::SetExtendedFrameStyle( SalExtStyle )
 void HaikuSalFrame::Show( bool bVisible, bool bNoActivate )
 {
     mpWindow->Show();
-    SalPaintEvent aPEvt(0, 0, mpWindow->Bounds().Width(), mpWindow->Bounds().Height());
-    aPEvt.mbImmediateUpdate = false;
-    CallCallback(SalEvent::Paint, &aPEvt);
 }
 
 void HaikuSalFrame::SetMinClientSize( long nWidth, long nHeight )
@@ -162,7 +210,7 @@ void HaikuSalFrame::ToTop( SalFrameToTop nFlags )
 
 void HaikuSalFrame::SetPointer( PointerStyle ePointerStyle )
 {
-    fprintf(stderr, "HaikuSalFrame::SetPointer()\n");
+    //fprintf(stderr, "HaikuSalFrame::SetPointer()\n");
 }
 
 void HaikuSalFrame::CaptureMouse( bool bCapture )

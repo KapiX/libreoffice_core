@@ -685,6 +685,7 @@ $(eval $(call gb_Library_add_exception_objects,vcl,\
     vcl/haiku/gdi/salbmp \
     vcl/haiku/gdi/salgdi \
     vcl/haiku/gdi/sallayout \
+    vcl/haiku/gdi/salvd \
     vcl/haiku/gdi/cairotextrender \
     vcl/haiku/window/salframe \
 ))

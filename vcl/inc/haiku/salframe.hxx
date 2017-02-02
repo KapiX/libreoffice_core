@@ -25,6 +25,21 @@
 
 class HaikuSalFrame;
 
+class HaikuView : public BView
+{
+private:
+    HaikuSalFrame* mpFrame;
+public:
+    HaikuView(BRect rect, HaikuSalFrame* pFrame);
+    virtual ~HaikuView();
+
+    void Draw(BRect updateRect);
+    void MouseMoved(BPoint point, uint32 transit, const BMessage* message);
+    void MouseDown(BPoint point);
+    void MouseUp(BPoint point);
+    void FrameResized(float width, float height);
+};
+
 class HaikuWindow : public BWindow
 {
 private:
@@ -35,8 +50,6 @@ public:
           mpFrame(frame)
         {}
     ~HaikuWindow() {}
-
-    void FrameResized(float width, float height);
 };
 
 

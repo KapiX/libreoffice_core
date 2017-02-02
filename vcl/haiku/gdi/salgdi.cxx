@@ -129,7 +129,10 @@ void HaikuSalGraphics::SetFillColor( SalColor nSalColor )
 
 void HaikuSalGraphics::SetXORMode( bool bSet )
 {
-    TRACE
+    if(mpView->Window()->LockLooper()) {
+        mpView->SetDrawingMode(bSet ? B_OP_INVERT : B_OP_COPY);
+        mpView->Window()->UnlockLooper();
+    }
 }
 
 void HaikuSalGraphics::SetROPLineColor( SalROPColor nROPColor )

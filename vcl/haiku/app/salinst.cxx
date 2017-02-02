@@ -13,6 +13,8 @@
 #include "haiku/salinst.hxx"
 #include "haiku/salframe.hxx"
 #include "haiku/saltimer.hxx"
+#include "haiku/salsys.hxx"
+#include "haiku/salvd.hxx"
 
 void InitSalData()   {}
 void DeInitSalData() {}
@@ -199,7 +201,7 @@ SalVirtualDevice* HaikuSalInstance::CreateVirtualDevice( SalGraphics* pGraphics,
                                                          DeviceFormat eFormat, const SystemGraphicsData *pData )
 {
     fprintf(stderr, "HaikuSalInstance::CreateVirtualDevice()\n");
-    return nullptr;
+    return new HaikuSalVirtualDevice();
 }
 
 SalInfoPrinter* HaikuSalInstance::CreateInfoPrinter( SalPrinterQueueInfo* pQueueInfo,
@@ -255,7 +257,7 @@ SalTimer* HaikuSalInstance::CreateSalTimer()
 SalSystem* HaikuSalInstance::CreateSalSystem()
 {
     fprintf(stderr, "HaikuSalInstance::CreateSalSystem()\n");
-    return nullptr;
+    return new HaikuSalSystem();
 }
 
 SalBitmap* HaikuSalInstance::CreateSalBitmap()
@@ -266,7 +268,7 @@ SalBitmap* HaikuSalInstance::CreateSalBitmap()
 
 SalYieldResult HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvents, sal_uLong nReleased)
 {
-    //fprintf(stderr, "HaikuSalInstance::DoYield()\n");
+    fprintf(stderr, "HaikuSalInstance::DoYield()\n");
     return SalYieldResult::TIMEOUT;
 }
 
