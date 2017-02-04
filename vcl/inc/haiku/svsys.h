@@ -14,6 +14,7 @@
     // WA for https://dev.haiku-os.org/ticket/12178
 
 #include <Application.h>
+#include <Bitmap.h>
 #include <Region.h>
 #include <View.h>
 #include <Window.h>

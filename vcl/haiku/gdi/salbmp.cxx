@@ -136,7 +136,7 @@ BitmapBuffer* ImplCreateDIB(
 
 
 HaikuSalBitmap::HaikuSalBitmap()
-    : mpDIB(nullptr)
+    : mpDIB(nullptr), mpBitmap(nullptr)
 {
     TRACE
 }

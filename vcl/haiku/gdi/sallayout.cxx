@@ -19,6 +19,7 @@
 
 #include "osl/module.h"
 #include "osl/file.h"
+#include "osl/thread.h"
 
 #include <haiku/sallayout.hxx>
 #include <haiku/salgdi.hxx>
@@ -31,25 +32,59 @@
 
 
 HaikuSalLayout::HaikuSalLayout()
+    :
+    mnGlyphCount( 0 ),
+    mnCharCount( 0 ),
+    mpOutGlyphs( nullptr ),
+    mpGlyphAdvances( nullptr ),
+    mpGlyphOrigAdvs( nullptr ),
+    mpCharWidths( nullptr ),
+    mnWidth( 0 )
 {
     TRACE
 }
 
 HaikuSalLayout::~HaikuSalLayout()
 {
-    TRACE
+    delete[] mpOutGlyphs;
+    delete[] mpGlyphAdvances;
+    delete[] mpGlyphOrigAdvs;
+    delete[] mpCharWidths;
 }
 
 
-bool HaikuSalLayout::LayoutText( ImplLayoutArgs& )
+bool HaikuSalLayout::LayoutText( ImplLayoutArgs& rArgs )
 {
     TRACE
+    OString str(OUStringToOString(rArgs.mrStr, osl_getThreadTextEncoding()));
+    mnWidth = be_plain_font->StringWidth(str.getStr());
+    mnCharCount = rArgs.mnEndCharPos - rArgs.mnMinCharPos;
+    mnGlyphCount = mnCharCount;
+    mpOutGlyphs = new char[ mnGlyphCount ];
+    mpGlyphAdvances = new int[ mnGlyphCount ];
+
+    for( int i = 0; i < mnGlyphCount; ++i )
+    {
+        mpOutGlyphs[ i ] = str[ i ];
+    }
     return true;
 }
 
-void HaikuSalLayout::DrawText( SalGraphics& ) const
+void HaikuSalLayout::DrawText( SalGraphics& rGraphics ) const
 {
     TRACE
+    HaikuSalGraphics& rHaikuGraphics = static_cast<HaikuSalGraphics&>(rGraphics);
+    BView* view = rHaikuGraphics.getView();
+    Point pt = GetDrawPosition();
+    BPoint p(pt.X(), pt.Y());
+    p.PrintToStream();
+    printf("%s\n", mpOutGlyphs);
+    if(view->Window()->LockLooper()) {
+        view->SetFont(be_plain_font);
+        view->SetHighColor(0, 0, 0, 255);
+        view->DrawString(mpOutGlyphs, p);
+        view->Window()->UnlockLooper();
+    }
 }
 
 sal_Int32 HaikuSalLayout::GetTextBreak(DeviceCoordinate nMaxWidth, DeviceCoordinate nCharExtra, int nFactor) const
@@ -60,8 +95,7 @@ sal_Int32 HaikuSalLayout::GetTextBreak(DeviceCoordinate nMaxWidth, DeviceCoordin
 
 DeviceCoordinate HaikuSalLayout::FillDXArray( DeviceCoordinate* pDXArray ) const
 {
-    TRACE
-    return 1;
+    return mnWidth;
 }
 
 void    HaikuSalLayout::GetCaretPositions( int nArraySize, long* pCaretXArray ) const

@@ -519,11 +519,18 @@ bool HaikuSalGraphics::blendAlphaBitmap( const SalTwoRect&,
 }
 
 
-bool HaikuSalGraphics::drawAlphaBitmap( const SalTwoRect&,
+bool HaikuSalGraphics::drawAlphaBitmap( const SalTwoRect& rTR,
       const SalBitmap& rSourceBitmap,
       const SalBitmap& rAlphaBitmap )
 {
     TRACE
+    BRect src(rTR.mnSrcX, rTR.mnSrcY, rTR.mnSrcX + rTR.mnSrcWidth, rTR.mnSrcY + rTR.mnSrcHeight);
+    BRect dest(rTR.mnDestX, rTR.mnDestY, rTR.mnDestX + rTR.mnDestWidth, rTR.mnDestY + rTR.mnDestHeight);
+    if(mpView->Window()->LockLooper()) {
+        mpView->SetHighColor(0, 0, 0, 128);
+        mpView->StrokeRect(dest);
+        mpView->Window()->UnlockLooper();
+    }
     return true;
 }
 

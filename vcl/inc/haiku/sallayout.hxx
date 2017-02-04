@@ -45,7 +45,13 @@ public:
     void    DropGlyph( int nStart );
     void    Simplify( bool bIsBase );
 private:
-
+    int             mnGlyphCount;
+    int             mnCharCount;
+    char*           mpOutGlyphs;
+    int*            mpGlyphAdvances;    // if possible this is shared with mpGlyphAdvances[]
+    int*            mpGlyphOrigAdvs;
+    int*            mpCharWidths;       // map rel char pos to char width
+    mutable long    mnWidth;
 };
 
 

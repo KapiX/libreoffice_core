@@ -37,6 +37,7 @@ public:
 public:
     // public SalGraphics methods, the interface to the independent vcl part
 
+    BView* getView() { return mpView; }
     // get device resolution
     virtual void            GetResolution( sal_Int32& rDPIX, sal_Int32& rDPIY ) override;
     // get the depth of the device

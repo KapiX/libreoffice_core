@@ -268,7 +268,6 @@ SalBitmap* HaikuSalInstance::CreateSalBitmap()
 
 SalYieldResult HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvents, sal_uLong nReleased)
 {
-    fprintf(stderr, "HaikuSalInstance::DoYield()\n");
     return SalYieldResult::TIMEOUT;
 }
 

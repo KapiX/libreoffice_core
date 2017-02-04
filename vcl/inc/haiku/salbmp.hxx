@@ -28,11 +28,13 @@ class BitmapColor;
 class BitmapPalette;
 class SalGraphics;
 struct BitmapSystemData;
+class BBitmap;
 
 class HaikuSalBitmap : public SalBitmap
 {
 private:
     BitmapBuffer*   mpDIB;
+    BBitmap*        mpBitmap;
 public:
     HaikuSalBitmap();
     virtual ~HaikuSalBitmap();
