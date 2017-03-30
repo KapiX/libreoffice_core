@@ -7,6 +7,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+gb_LinkTarget_LDFLAGS += -fdebug-types-section
 gb__LinkTarget_LDFLAGS_zdefs := -Wl,-z,defs
 ifeq ($(COM_IS_CLANG),TRUE)
 ifneq ($(filter -fsanitize=%,$(CC)),)
