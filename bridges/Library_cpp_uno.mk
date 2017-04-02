@@ -168,7 +168,7 @@ bridge_exception_objects := except
 
 else ifeq ($(CPUNAME),X86_64)
 
-ifneq ($(filter DRAGONFLY FREEBSD LINUX NETBSD OPENBSD,$(OS)),)
+ifneq ($(filter DRAGONFLY FREEBSD LINUX NETBSD OPENBSD HAIKU,$(OS)),)
 bridges_SELECTED_BRIDGE := gcc3_linux_x86-64
 bridge_asm_objects := call
 bridge_noncallexception_noopt_objects := callvirtualmethod

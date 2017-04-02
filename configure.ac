@@ -4152,10 +4152,21 @@ haiku*)
     RTL_OS=Haiku
     OS=HAIKU
     P_SEP=:
-
-    CPUNAME=INTEL
-    RTL_ARCH=x86
-    PLATFORMID=haiku_x86
+    case "$host_cpu" in
+    i*86)
+        CPUNAME=INTEL
+        RTL_ARCH=x86
+        PLATFORMID=haiku_x86
+        ;;
+    x86_64)
+        CPUNAME=X86_64
+        RTL_ARCH=X86_64
+        PLATFORMID=haiku_x86_64
+        ;;
+    *)
+        AC_MSG_ERROR([Unsupported host_cpu $host_cpu for host_os $host_os])
+        ;;
+    esac
     OUTPATH=haiku
     ;;
 
