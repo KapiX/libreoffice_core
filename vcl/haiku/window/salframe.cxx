@@ -19,8 +19,10 @@
 
 #include "osl/thread.h"
 
+#include <haiku/saldata.hxx>
 #include <haiku/salframe.hxx>
 #include <haiku/salgdi.hxx>
+#include <haiku/salinst.hxx>
 
 #include <cstdio>
 
@@ -40,6 +42,7 @@ void HaikuView::Draw(BRect updateRect)
     SalPaintEvent aPEvt(0, 0, Bounds().Width(), Bounds().Height());
     aPEvt.mbImmediateUpdate = false;
     mpFrame->CallCallback(SalEvent::Paint, &aPEvt);
+    //GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Paint, &aPEvt);
 }
 
 void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
@@ -49,7 +52,7 @@ void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
     aMouseEvt.mnY       = point.y;
     aMouseEvt.mnCode    = 0;
     aMouseEvt.mnButton = 0;
-    mpFrame->CallCallback(SalEvent::MouseMove, &aMouseEvt);
+    GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::MouseMove, &aMouseEvt);
 }
 
 void HaikuView::MouseDown(BPoint point)
@@ -59,8 +62,8 @@ void HaikuView::MouseDown(BPoint point)
     aMouseEvt.mnX       = point.x;
     aMouseEvt.mnY       = point.y;
     aMouseEvt.mnCode    = 0;
-    aMouseEvt.mnButton = 0;
-    mpFrame->CallCallback(SalEvent::MouseButtonDown, &aMouseEvt);
+    GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::MouseButtonDown, &aMouseEvt);
+
 }
 
 void HaikuView::MouseUp(BPoint point)
@@ -70,13 +73,21 @@ void HaikuView::MouseUp(BPoint point)
     aMouseEvt.mnX       = point.x;
     aMouseEvt.mnY       = point.y;
     aMouseEvt.mnCode    = 0;
-    aMouseEvt.mnButton = 0;
-    mpFrame->CallCallback(SalEvent::MouseButtonUp, &aMouseEvt);
+    GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::MouseButtonUp, &aMouseEvt);
 }
 
 void HaikuView::FrameResized(float width, float height)
 {
-    mpFrame->CallCallback(SalEvent::Resize, nullptr);
+    GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Resize, nullptr);
+}
+
+void HaikuWindow::MessageReceived(BMessage* message)
+{
+    switch(message->what) {
+        default: {
+            BWindow::MessageReceived(message);
+        } break;
+    }
 }
 
 HaikuSalFrame::HaikuSalFrame()
@@ -109,7 +120,7 @@ void HaikuSalFrame::ReleaseGraphics( SalGraphics* pGraphics )
 
 bool HaikuSalFrame::PostEvent(ImplSVEvent* pData)
 {
-    fprintf(stderr, "HaikuSalFrame::PostEvent()\n");
+    GetSalData()->mpFirstInstance->PostUserEvent( this, SalEvent::UserEvent, pData );
     return true;
 }
 

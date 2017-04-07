@@ -23,6 +23,9 @@
 #include <salframe.hxx>
 #include <svsys.h>
 
+
+const int SAL_MSG_USEREVENT = 'smue';
+
 class HaikuSalFrame;
 
 class HaikuView : public BView
@@ -50,6 +53,7 @@ public:
           mpFrame(frame)
         {}
     ~HaikuWindow() {}
+    void MessageReceived(BMessage* message);
 };
 
 

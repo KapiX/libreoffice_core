@@ -90,7 +90,7 @@ void HaikuSalLayout::DrawText( SalGraphics& rGraphics ) const
 sal_Int32 HaikuSalLayout::GetTextBreak(DeviceCoordinate nMaxWidth, DeviceCoordinate nCharExtra, int nFactor) const
 {
     TRACE
-    return 1;
+    return -1;
 }
 
 DeviceCoordinate HaikuSalLayout::FillDXArray( DeviceCoordinate* pDXArray ) const
@@ -107,7 +107,7 @@ int     HaikuSalLayout::GetNextGlyphs( int nLen, sal_GlyphId* pGlyphIdAry, Point
                                DeviceCoordinate* pGlyphAdvAry, int* pCharPosAry,
                                const PhysicalFontFace** pFallbackFonts) const
 {
-    TRACE
+//    TRACE
     return 1;
 }
 

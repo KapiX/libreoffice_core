@@ -20,9 +20,12 @@
 #ifndef INCLUDED_VCL_INC_HAIKU_SALINST_HXX
 #define INCLUDED_VCL_INC_HAIKU_SALINST_HXX
 
+#include <list>
+
 #include <comphelper/solarmutex.hxx>
 #include <tools/solar.h>
 #include <osl/thread.hxx>
+#include <osl/conditn.h>
 #include <vclpluginapi.h>
 #include <salinst.hxx>
 
@@ -57,12 +60,31 @@ public:
     oslThreadIdentifier GetThreadId() const { return mnThreadId; }
 };
 
+class HaikuSalFrame;
+enum class SalEvent;
+
 class HaikuSalInstance : public SalInstance
 {
 private:
-    SalYieldMutex*      mpSalYieldMutex;
-    HaikuApplication*   mpApplication;
-        // move to SalData?
+    struct SalUserEvent
+    {
+        HaikuSalFrame*  mpFrame;
+        void*           mpData;
+        SalEvent        mnType;
+
+        SalUserEvent( HaikuSalFrame* pFrame, void* pData, SalEvent nType ) :
+            mpFrame( pFrame ), mpData( pData ), mnType( nType )
+        {}
+    };
+
+    SalYieldMutex*                          mpSalYieldMutex;
+    HaikuApplication*                       mpApplication;
+    oslThreadIdentifier                     maMainThread;
+    bool                                    mbWaitingYield;
+    std::list< SalUserEvent >               maUserEvents;
+    osl::Mutex                              maUserEventListMutex;
+    oslCondition                            maWaitingYieldCond;
+
 public:
     HaikuSalInstance();
     virtual ~HaikuSalInstance() override;
@@ -104,6 +126,8 @@ public:
     virtual void                AddToRecentDocumentList(const OUString& rFileUrl, const OUString& rMimeType, const OUString& rDocumentService) override;
 
     virtual OUString            getOSVersion() override;
+
+    void PostUserEvent( HaikuSalFrame* pFrame, SalEvent nType, void* pData );
 };
 
 #endif // INCLUDED_VCL_INC_HAIKU_SALINST_HXX

@@ -263,7 +263,7 @@ void HaikuSalGraphics::GetGlyphWidths( const PhysicalFontFace*,
 
 bool HaikuSalGraphics::GetGlyphBoundRect( sal_GlyphId, Rectangle& )
 {
-    TRACE
+//    TRACE
     return true;
 }
 

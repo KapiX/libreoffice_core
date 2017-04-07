@@ -10,14 +10,23 @@
 #include <comphelper/solarmutex.hxx>
 
 #include "haiku/salbmp.hxx"
+#include "haiku/saldata.hxx"
 #include "haiku/salinst.hxx"
 #include "haiku/salframe.hxx"
 #include "haiku/saltimer.hxx"
 #include "haiku/salsys.hxx"
 #include "haiku/salvd.hxx"
 
-void InitSalData()   {}
-void DeInitSalData() {}
+void InitSalData()
+{
+    SalData* pSalData = new SalData;
+}
+void DeInitSalData()
+{
+    SalData* pSalData = GetSalData();
+
+    delete pSalData;
+}
 void InitSalMain()   { fprintf(stderr, "InitSalMain\n"); }
 
 void SalAbort( const OUString& rErrorText, bool bDumpCore )
@@ -44,16 +53,22 @@ const OUString& SalGetDesktopEnvironment()
 // This is our main entry point:
 SalInstance *CreateSalInstance()
 {
-    fprintf(stderr, "Haiku: CreateSalInstance!\n");
-    HaikuSalInstance* pInstance = new HaikuSalInstance();
-    //new HaikuSalData( pInstance );
-    pInstance->AcquireYieldMutex(1);
-    return pInstance;
+    SalData* pSalData = GetSalData();
+
+    HaikuSalInstance* pInst = new HaikuSalInstance();
+    pSalData->mpFirstInstance = pInst;
+    pInst->AcquireYieldMutex(1);
+    return pInst;
 }
 
 void DestroySalInstance( SalInstance *pInst )
 {
+    SalData* pSalData = GetSalData();
     pInst->ReleaseYieldMutex();
+
+    if ( pSalData->mpFirstInstance == pInst )
+        pSalData->mpFirstInstance = nullptr;
+
     delete pInst;
 }
 
@@ -153,18 +168,45 @@ bool HaikuSalInstance::CheckYieldMutex()
     return bRet;
 }
 
-HaikuSalInstance::HaikuSalInstance()
+bool ImplSalYieldMutexTryToAcquire()
 {
-    fprintf(stderr, "HaikuSalInstance::HaikuSalInstance()\n");
+    HaikuSalInstance* pInst = GetSalData()->mpFirstInstance;
+    if ( pInst )
+        return pInst->GetYieldMutex()->tryToAcquire();
+    else
+        return false;
+}
+
+void ImplSalYieldMutexRelease()
+{
+    HaikuSalInstance* pInst = GetSalData()->mpFirstInstance;
+    if ( pInst )
+        pInst->GetYieldMutex()->release();
+}
+
+HaikuSalInstance::HaikuSalInstance()
+    : maUserEventListMutex()
+{
     mpSalYieldMutex = new SalYieldMutex();
     mpApplication = new HaikuApplication();
+    mbWaitingYield = false;
+    maWaitingYieldCond = osl_createCondition();
+    maMainThread = osl::Thread::getCurrentIdentifier();
 }
 
 HaikuSalInstance::~HaikuSalInstance()
 {
+    osl_destroyCondition( maWaitingYieldCond );
     delete mpApplication;
     delete mpSalYieldMutex;
-    fprintf(stderr, "HaikuSalInstance::~HaikuSalInstance()\n");
+}
+
+void HaikuSalInstance::PostUserEvent( HaikuSalFrame* pFrame, SalEvent nType, void* pData )
+{
+    {
+        osl::MutexGuard g( maUserEventListMutex );
+        maUserEvents.push_back( SalUserEvent( pFrame, pData, nType ) );
+    }
 }
 
 SalFrame* HaikuSalInstance::CreateChildFrame( SystemParentData* pParent, SalFrameStyleFlags nStyle )
@@ -268,6 +310,38 @@ SalBitmap* HaikuSalInstance::CreateSalBitmap()
 
 SalYieldResult HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvents, sal_uLong nReleased)
 {
+    (void) nReleased;
+    assert(nReleased == 0); // not implemented
+
+    bool bDispatchUser = true;
+    while( bDispatchUser ) {
+        sal_uLong nCount = ReleaseYieldMutex();
+
+        // get one user event
+        SalUserEvent aEvent( nullptr, nullptr, SalEvent::NONE );
+        {
+            osl::MutexGuard g( maUserEventListMutex );
+            if( ! maUserEvents.empty() )
+            {
+                aEvent = maUserEvents.front();
+                maUserEvents.pop_front();
+            }
+            else
+                bDispatchUser = false;
+        }
+        AcquireYieldMutex( nCount );
+
+        // dispatch it
+        if( aEvent.mpFrame )
+        {
+            aEvent.mpFrame->CallCallback( aEvent.mnType, aEvent.mpData );
+            osl_setCondition( maWaitingYieldCond );
+            // return if only one event is asked for
+            if( ! bHandleAllCurrentEvents )
+                return SalYieldResult::EVENT;
+        }
+    }
+
     return SalYieldResult::TIMEOUT;
 }
 
