@@ -27,7 +27,7 @@
 #include <haiku/salgdi.hxx>
 
 
-class HaikuSalLayout : public SalLayout {
+class HaikuSalLayout : public GenericSalLayout {
 public:
     HaikuSalLayout();
     ~HaikuSalLayout();

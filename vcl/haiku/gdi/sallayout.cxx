@@ -77,8 +77,6 @@ void HaikuSalLayout::DrawText( SalGraphics& rGraphics ) const
     BView* view = rHaikuGraphics.getView();
     Point pt = GetDrawPosition();
     BPoint p(pt.X(), pt.Y());
-    p.PrintToStream();
-    printf("%s\n", mpOutGlyphs);
     if(view->Window()->LockLooper()) {
         view->SetFont(be_plain_font);
         view->SetHighColor(0, 0, 0, 255);
@@ -89,8 +87,7 @@ void HaikuSalLayout::DrawText( SalGraphics& rGraphics ) const
 
 sal_Int32 HaikuSalLayout::GetTextBreak(DeviceCoordinate nMaxWidth, DeviceCoordinate nCharExtra, int nFactor) const
 {
-    TRACE
-    return -1;
+    return GenericSalLayout::GetTextBreak( nMaxWidth, nCharExtra, nFactor );
 }
 
 DeviceCoordinate HaikuSalLayout::FillDXArray( DeviceCoordinate* pDXArray ) const
@@ -100,30 +97,29 @@ DeviceCoordinate HaikuSalLayout::FillDXArray( DeviceCoordinate* pDXArray ) const
 
 void    HaikuSalLayout::GetCaretPositions( int nArraySize, long* pCaretXArray ) const
 {
-    TRACE
+    GenericSalLayout::GetCaretPositions( nArraySize, pCaretXArray );
 }
 
-int     HaikuSalLayout::GetNextGlyphs( int nLen, sal_GlyphId* pGlyphIdAry, Point& rPos, int&,
+int     HaikuSalLayout::GetNextGlyphs( int nLen, sal_GlyphId* pGlyphIdAry, Point& rPos, int& nStart,
                                DeviceCoordinate* pGlyphAdvAry, int* pCharPosAry,
                                const PhysicalFontFace** pFallbackFonts) const
 {
-//    TRACE
-    return 1;
+    return GenericSalLayout::GetNextGlyphs( nLen, pGlyphIdAry, rPos, nStart, pGlyphAdvAry, pCharPosAry );
 }
 
 
 void    HaikuSalLayout::MoveGlyph( int nStart, long nNewXPos )
 {
-    TRACE
+    GenericSalLayout::MoveGlyph( nStart, nNewXPos );
 }
 
 void    HaikuSalLayout::DropGlyph( int nStart )
 {
-    TRACE
+    GenericSalLayout::DropGlyph( nStart );
 }
 
 void    HaikuSalLayout::Simplify( bool bIsBase )
 {
-    TRACE
+    GenericSalLayout::Simplify( bIsBase );
 }
 

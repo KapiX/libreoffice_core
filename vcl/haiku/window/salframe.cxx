@@ -99,9 +99,9 @@ HaikuSalFrame::HaikuSalFrame()
 HaikuSalFrame::~HaikuSalFrame()
 {
     fprintf(stderr, "HaikuSalFrame::~HaikuSalFrame()\n");
-    //if(mpWindow->LockLooper()) {
+    if(mpWindow->LockLooper()) {
         mpWindow->Quit();
-    //}
+    }
 }
 
 SalGraphics* HaikuSalFrame::AcquireGraphics()
