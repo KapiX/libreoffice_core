@@ -39,6 +39,7 @@ HaikuView::~HaikuView()
 
 void HaikuView::Draw(BRect updateRect)
 {
+    SetViewColor(B_TRANSPARENT_COLOR);
     SalPaintEvent aPEvt(0, 0, Bounds().Width(), Bounds().Height());
     aPEvt.mbImmediateUpdate = false;
     mpFrame->CallCallback(SalEvent::Paint, &aPEvt);

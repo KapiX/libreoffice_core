@@ -310,7 +310,7 @@ void HaikuSalGraphics::updateSettingsNative( AllSettings& rSettings )
 bool HaikuSalGraphics::setClipRegion( const vcl::Region& region )
 {
     Rectangle rect = region.GetBoundRect();
-    BRegion r(BRect(rect.Left(), rect.Top(), rect.Right(), rect.Bottom()));
+    BRegion r(BRect(rect.Left(), rect.Top(), rect.Right() - 1, rect.Bottom() - 1));
     if(mpView->Window()->LockLooper()) {
         mpView->ConstrainClippingRegion(&r);
         mpView->Window()->UnlockLooper();
@@ -342,7 +342,7 @@ void HaikuSalGraphics::drawLine( long nX1, long nY1, long nX2, long nY2 )
 void HaikuSalGraphics::drawRect( long nX, long nY, long nWidth, long nHeight )
 {
     TRACE
-    BRect rect(nX, nY, nX + nWidth, nY + nHeight);
+    BRect rect(nX, nY, nX + nWidth - 1, nY + nHeight - 1);
     if(mpView->Window()->LockLooper()) {
         mpView->StrokeRect(rect, B_SOLID_HIGH);
         mpView->FillRect(rect, B_SOLID_LOW);
@@ -524,14 +524,21 @@ bool HaikuSalGraphics::drawAlphaBitmap( const SalTwoRect& rTR,
       const SalBitmap& rAlphaBitmap )
 {
     TRACE
-    BRect src(rTR.mnSrcX, rTR.mnSrcY, rTR.mnSrcX + rTR.mnSrcWidth, rTR.mnSrcY + rTR.mnSrcHeight);
-    BRect dest(rTR.mnDestX, rTR.mnDestY, rTR.mnDestX + rTR.mnDestWidth, rTR.mnDestY + rTR.mnDestHeight);
-    if(mpView->Window()->LockLooper()) {
-        mpView->SetHighColor(0, 0, 0, 128);
-        mpView->StrokeRect(dest);
-        mpView->Window()->UnlockLooper();
+    BRect src(rTR.mnSrcX, rTR.mnSrcY, rTR.mnSrcX + rTR.mnSrcWidth - 1, rTR.mnSrcY + rTR.mnSrcHeight - 1);
+    BRect dest(rTR.mnDestX, rTR.mnDestY, rTR.mnDestX + rTR.mnDestWidth - 1, rTR.mnDestY + rTR.mnDestHeight - 1);
+    const HaikuSalBitmap& rSalBitmap = static_cast< const HaikuSalBitmap& >(rSourceBitmap);
+    const HaikuSalBitmap& rABitmap = static_cast< const HaikuSalBitmap& >(rAlphaBitmap);
+    std::shared_ptr< BBitmap > aARGB(rSalBitmap.GetBitmap(rABitmap));
+    if(aARGB.get()) {
+        if(mpView->Window()->LockLooper()) {
+            mpView->SetDrawingMode(B_OP_ALPHA);
+            mpView->DrawBitmap(aARGB.get(), src, dest);
+            mpView->SetDrawingMode(B_OP_COPY);
+            mpView->Window()->UnlockLooper();
+        }
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool HaikuSalGraphics::drawTransformedBitmap(

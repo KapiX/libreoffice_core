@@ -277,3 +277,169 @@ bool HaikuSalBitmap::Replace( const Color& rSearchColor, const Color& rReplaceCo
     TRACE
     return false;
 }
+
+BBitmap* HaikuSalBitmap::GetBitmap() const
+{
+    BBitmap* pRetval(nullptr);
+    HaikuSalBitmap* pSalRGB = const_cast< HaikuSalBitmap* >(this);
+
+    BitmapBuffer* pRGB = pSalRGB->AcquireBuffer(BitmapAccessMode::Read);
+    BitmapBuffer* pExtraRGB = nullptr;
+
+    if(pRGB && ScanlineFormat::N32BitTcBgra != (pRGB->mnFormat & ~ScanlineFormat::TopDown)) {
+        SalTwoRect aSalTwoRect(0, 0, pRGB->mnWidth, pRGB->mnHeight, 0, 0, pRGB->mnWidth, pRGB->mnHeight);
+        pExtraRGB = StretchAndConvert(
+            *pRGB,
+            aSalTwoRect,
+            ScanlineFormat::N32BitTcBgra);
+
+        pSalRGB->ReleaseBuffer(pRGB, BitmapAccessMode::Write);
+        pRGB = pExtraRGB;
+    }
+
+    if(pRGB
+        && pRGB->mnWidth > 0
+        && pRGB->mnHeight > 0
+        && ScanlineFormat::N32BitTcBgra == (pRGB->mnFormat & ~ScanlineFormat::TopDown))
+    {
+        const sal_uInt32 nW(pRGB->mnWidth);
+        const sal_uInt32 nH(pRGB->mnHeight);
+
+        pRetval = new BBitmap(BRect(0, 0, nW, nH), B_RGB32);
+
+        if(pRetval) {
+            sal_uInt8* pSrcRGB(pRGB->mpBits);
+            const sal_uInt32 nExtraRGB(pRGB->mnScanlineSize - (nW * 4));
+            const bool bTopDown(pRGB->mnFormat & ScanlineFormat::TopDown);
+
+            for(sal_uInt32 y(0); y < nH; y++)
+            {
+                const sal_uInt32 nYInsert(bTopDown ? y : nH - y - 1);
+                sal_uInt8* targetPixels = static_cast<sal_uInt8*>(pRetval->Bits()) + (nYInsert * pRetval->BytesPerRow());
+
+                memcpy(targetPixels, pSrcRGB, nW * 4);
+                pSrcRGB += nW * 4 + nExtraRGB;
+            }
+        } else {
+            delete pRetval;
+            pRetval = nullptr;
+        }
+    }
+
+    if(pExtraRGB) {
+        delete [] pExtraRGB->mpBits;
+        delete pExtraRGB;
+    } else {
+        pSalRGB->ReleaseBuffer(pRGB, BitmapAccessMode::Read);
+    }
+
+    return pRetval;
+}
+
+BBitmap* HaikuSalBitmap::GetBitmap(const HaikuSalBitmap& rAlphaSource) const
+{
+    BBitmap* pRetval(nullptr);
+    HaikuSalBitmap* pSalRGB = const_cast< HaikuSalBitmap* >(this);
+
+    BitmapBuffer* pRGB = pSalRGB->AcquireBuffer(BitmapAccessMode::Read);
+    BitmapBuffer* pExtraRGB = nullptr;
+
+    if(pRGB && ScanlineFormat::N24BitTcBgr != (pRGB->mnFormat & ~ScanlineFormat::TopDown)) {
+        SalTwoRect aSalTwoRect(0, 0, pRGB->mnWidth, pRGB->mnHeight, 0, 0, pRGB->mnWidth, pRGB->mnHeight);
+        pExtraRGB = StretchAndConvert(
+            *pRGB,
+            aSalTwoRect,
+            ScanlineFormat::N24BitTcBgr);
+
+        pSalRGB->ReleaseBuffer(pRGB, BitmapAccessMode::Write);
+        pRGB = pExtraRGB;
+    }
+
+    HaikuSalBitmap* pSalA = const_cast< HaikuSalBitmap* >(&rAlphaSource);
+
+    BitmapBuffer* pA = pSalA->AcquireBuffer(BitmapAccessMode::Read);
+    BitmapBuffer* pExtraA = nullptr;
+
+    if(pA && ScanlineFormat::N8BitPal != (pA->mnFormat & ~ScanlineFormat::TopDown))
+    {
+        // convert alpha bitmap to ScanlineFormat::N8BitPal format if not yet in that format
+        SalTwoRect aSalTwoRect(0, 0, pA->mnWidth, pA->mnHeight, 0, 0, pA->mnWidth, pA->mnHeight);
+        const BitmapPalette& rTargetPalette = Bitmap::GetGreyPalette(256);
+
+        pExtraA = StretchAndConvert(
+            *pA,
+            aSalTwoRect,
+            ScanlineFormat::N8BitPal,
+            &rTargetPalette);
+
+        pSalA->ReleaseBuffer(pA, BitmapAccessMode::Read);
+        pA = pExtraA;
+    }
+
+    if(pRGB
+        && pA
+        && pRGB->mnWidth > 0
+        && pRGB->mnHeight > 0
+        && pRGB->mnWidth == pA->mnWidth
+        && pRGB->mnHeight == pA->mnHeight
+        && ScanlineFormat::N24BitTcBgr == (pRGB->mnFormat & ~ScanlineFormat::TopDown)
+        && ScanlineFormat::N8BitPal == (pA->mnFormat & ~ScanlineFormat::TopDown))
+    {
+        const sal_uInt32 nW(pRGB->mnWidth);
+        const sal_uInt32 nH(pRGB->mnHeight);
+
+        pRetval = new BBitmap(BRect(0, 0, nW, nH), B_RGBA32);
+
+        if(pRetval) {
+            sal_uInt8* pSrcRGB(pRGB->mpBits);
+            sal_uInt8* pSrcA(pA->mpBits);
+            const sal_uInt32 nExtraRGB(pRGB->mnScanlineSize - (nW * 3));
+            const sal_uInt32 nExtraA(pA->mnScanlineSize - nW);
+            const bool bTopDown(pRGB->mnFormat & ScanlineFormat::TopDown);
+            const bool bATopDown(pA->mnFormat & ScanlineFormat::TopDown);
+
+            for(sal_uInt32 y(0); y < nH; y++)
+            {
+                const sal_uInt32 nYInsert(bTopDown ? y : nH - y - 1);
+                const sal_uInt32 nYA(bATopDown ? nH - y - 1 : y);
+                sal_uInt8* targetPixels = static_cast<sal_uInt8*>(pRetval->Bits()) + (nYInsert * pRetval->BytesPerRow());
+                sal_uInt8* pSrcAInv = pSrcA + nYA * pA->mnScanlineSize;
+
+                for(sal_uInt32 x(0); x < nW; x++)
+                {
+                    *targetPixels++ = *pSrcRGB++;
+                    *targetPixels++ = *pSrcRGB++;
+                    *targetPixels++ = *pSrcRGB++;
+                    *targetPixels++ = 0xff - *pSrcAInv++;
+                }
+
+                pSrcRGB += nExtraRGB;
+                pSrcAInv += nExtraA;
+            }
+        } else {
+            delete pRetval;
+            pRetval = nullptr;
+        }
+    }
+
+    if(pExtraA)
+    {
+        // #i123478# shockingly, BitmapBuffer does not free the memory it is controlling
+        // in its destructor, this *has to be done handish*. Doing it here now
+        delete[] pExtraA->mpBits;
+        delete pExtraA;
+    }
+    else
+    {
+        pSalA->ReleaseBuffer(pA, BitmapAccessMode::Read);
+    }
+
+    if(pExtraRGB) {
+        delete [] pExtraRGB->mpBits;
+        delete pExtraRGB;
+    } else {
+        pSalRGB->ReleaseBuffer(pRGB, BitmapAccessMode::Read);
+    }
+
+    return pRetval;
+}

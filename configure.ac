@@ -795,6 +795,7 @@ haiku*)
     test_xrender=no
     test_freetype=yes
     test_fontconfig=yes
+    test_cairo=yes
     enable_java=no
     enable_opengl=no
     enable_odk=no

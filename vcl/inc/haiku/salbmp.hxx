@@ -60,6 +60,9 @@ public:
 
     virtual bool            Scale( const double& rScaleX, const double& rScaleY, BmpScaleFlag nScaleFlag ) override;
     virtual bool            Replace( const Color& rSearchColor, const Color& rReplaceColor, sal_uLong nTol ) override;
+
+    BBitmap*                GetBitmap() const;
+    BBitmap*                GetBitmap(const HaikuSalBitmap& rAlphaSource) const;
 };
 
 #endif
