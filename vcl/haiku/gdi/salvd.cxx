@@ -21,29 +21,46 @@
 
 #include <vcl/sysdata.hxx>
 
-//#include <haiku/saldata.hxx>
+#include <haiku/saldata.hxx>
 #include <haiku/salinst.hxx>
 #include <haiku/salgdi.hxx>
 #include <haiku/salvd.hxx>
 
-HaikuSalVirtualDevice::HaikuSalVirtualDevice()
+HaikuSalVirtualDevice::HaikuSalVirtualDevice(HaikuSalGraphics *pGraphics)
 {
+    //mbGraphics = false;
+    //mpGraphics = pGraphics;
+    fprintf(stderr, "HaikuSalVirtualDevice::HaikuSalVirtualDevice()\n");
 }
 
 HaikuSalVirtualDevice::~HaikuSalVirtualDevice()
 {
+    //delete mpGraphics->getView();
+    //delete mpGraphics;
+    fprintf(stderr, "HaikuSalVirtualDevice::~HaikuSalVirtualDevice()\n");
 }
 
 SalGraphics* HaikuSalVirtualDevice::AcquireGraphics()
 {
-    return nullptr;
+    fprintf(stderr, "HaikuSalVirtualDevice::AcquireGraphics()\n");
+
+    //if ( mbGraphics )
+        return nullptr;
+
+    if ( mpGraphics )
+        mbGraphics = true;
+
+    return mpGraphics;
 }
 
 void HaikuSalVirtualDevice::ReleaseGraphics( SalGraphics* pGraphics )
 {
+    fprintf(stderr, "HaikuSalVirtualDevice::ReleaseGraphics()\n");
+    mbGraphics = false;
 }
 
 bool HaikuSalVirtualDevice::SetSize( long nNewDX, long nNewDY )
 {
+    fprintf(stderr, "HaikuSalVirtualDevice::SetSize(%l, %l)\n", nNewDX, nNewDY);
     return true;
 }

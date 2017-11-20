@@ -91,10 +91,19 @@ void HaikuWindow::MessageReceived(BMessage* message)
     }
 }
 
-HaikuSalFrame::HaikuSalFrame()
+HaikuSalFrame::HaikuSalFrame(SalFrameStyleFlags nStyle)
 {
     fprintf(stderr, "HaikuSalFrame::HaikuSalFrame()\n");
     mpWindow = new HaikuWindow(this);
+    if(nStyle & SalFrameStyleFlags::TOOLTIP) {
+        mpWindow->SetLook(B_NO_BORDER_WINDOW_LOOK);
+        mpWindow->SetFlags(mpWindow->Flags() & B_AVOID_FOCUS);
+    }
+
+//    if(nStyle & SalFrameStyleFlags::MOVEABLE) {
+//        mpWindow->SetLook(B_NO_BORDER_WINDOW_LOOK);
+//        mpWindow->SetFlags(mpWindow->Flags() & B_AVOID_FOCUS);
+//    }
 }
 
 HaikuSalFrame::~HaikuSalFrame()
@@ -169,7 +178,30 @@ void HaikuSalFrame::SetMaxClientSize( long nWidth, long nHeight )
 void HaikuSalFrame::SetPosSize( long nX, long nY, long nWidth, long nHeight,
                                 sal_uInt16 nFlags )
 {
-    fprintf(stderr, "HaikuSalFrame::SetPosSize()\n");
+    fprintf(stderr, "HaikuSalFrame::SetPosSize(%d, %d, %d, %d, %d)\n", nX, nY, nWidth, nHeight, nFlags);
+    SalEvent nEvent = SalEvent::NONE;
+
+    BRect aWindowRect = mpWindow->Frame();
+
+    if(nFlags & (SAL_FRAME_POSSIZE_X | SAL_FRAME_POSSIZE_Y)) {
+        nEvent = SalEvent::Move;
+        mpWindow->MoveTo(nX, nY);
+    }
+    /*if(nFlags & (SAL_FRAME_POSSIZE_WIDTH | SAL_FRAME_POSSIZE_HEIGHT)) {
+        nEvent = (nEvent == SalEvent::Move) ? SalEvent::MoveResize : SalEvent::Resize;
+        mpWindow->ResizeTo(nWidth, nHeight);
+    }*/
+
+    if(nEvent != SalEvent::NONE)
+        CallCallback(nEvent, nullptr);
+//    if ( !(nFlags & SAL_FRAME_POSSIZE_X) )
+//        aWindowRect.left = nX;
+//    if ( !(nFlags & SAL_FRAME_POSSIZE_Y) )
+//        aWindowRect.top = nY;
+//    if ( !(nFlags & SAL_FRAME_POSSIZE_WIDTH) )
+//        aWindowRect.right = aWindowRect.left + nWidth;
+//    if ( !(nFlags & SAL_FRAME_POSSIZE_HEIGHT) )
+//        aWindowRect.right = aWindowRect.top + nHeight;
 }
 
 SalFrame* HaikuSalFrame::GetParent() const

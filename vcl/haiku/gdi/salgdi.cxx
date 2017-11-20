@@ -156,9 +156,13 @@ void HaikuSalGraphics::SetFont( FontSelectPattern*, int nFallbackLevel )
 }
 
 
-void HaikuSalGraphics::GetFontMetric( ImplFontMetricDataRef&, int nFallbackLevel )
+void HaikuSalGraphics::GetFontMetric( ImplFontMetricDataRef& rxFontMetric, int nFallbackLevel )
 {
     TRACE
+    font_height fh;
+    be_plain_font->GetHeight(&fh);
+    rxFontMetric->SetAscent(static_cast<int>(fh.ascent));
+    rxFontMetric->SetDescent(static_cast<int>(fh.descent));
 }
 
 const FontCharMapRef HaikuSalGraphics::GetFontCharMap() const

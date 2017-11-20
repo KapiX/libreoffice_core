@@ -62,7 +62,7 @@ class HaikuSalFrame : public SalFrame
 private:
     HaikuWindow*    mpWindow;
 public:
-    HaikuSalFrame();
+    HaikuSalFrame(SalFrameStyleFlags nStyle);
     virtual ~HaikuSalFrame() override;
 
     virtual SalGraphics*        AcquireGraphics() override;

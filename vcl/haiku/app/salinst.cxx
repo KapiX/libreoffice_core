@@ -12,6 +12,7 @@
 #include "haiku/salbmp.hxx"
 #include "haiku/saldata.hxx"
 #include "haiku/salinst.hxx"
+#include "haiku/salgdi.hxx"
 #include "haiku/salframe.hxx"
 #include "haiku/saltimer.hxx"
 #include "haiku/salsys.hxx"
@@ -212,13 +213,13 @@ void HaikuSalInstance::PostUserEvent( HaikuSalFrame* pFrame, SalEvent nType, voi
 SalFrame* HaikuSalInstance::CreateChildFrame( SystemParentData* pParent, SalFrameStyleFlags nStyle )
 {
     fprintf(stderr, "HaikuSalInstance::CreateChildFrame()\n");
-    return new HaikuSalFrame();
+    return new HaikuSalFrame(nStyle);
 }
 
 SalFrame* HaikuSalInstance::CreateFrame( SalFrame* pParent, SalFrameStyleFlags nStyle )
 {
     fprintf(stderr, "HaikuSalInstance::CreateFrame()\n");
-    return new HaikuSalFrame();
+    return new HaikuSalFrame(nStyle);
 }
 
 void HaikuSalInstance::DestroyFrame( SalFrame* pFrame )
@@ -243,7 +244,13 @@ SalVirtualDevice* HaikuSalInstance::CreateVirtualDevice( SalGraphics* pGraphics,
                                                          DeviceFormat eFormat, const SystemGraphicsData *pData )
 {
     fprintf(stderr, "HaikuSalInstance::CreateVirtualDevice()\n");
-    return new HaikuSalVirtualDevice();
+    HaikuSalGraphics *pHGraphics = static_cast<HaikuSalGraphics*>(pGraphics);
+    /*BMessage archive;
+    pHGraphics->getView()->Archive(&archive);
+    fprintf(stderr, "getView(): %d\n", pHGraphics->getView());
+    BView* newView = new BView(&archive);
+    HaikuSalGraphics *newGraphics = new HaikuSalGraphics(newView);*/
+    return new HaikuSalVirtualDevice(pHGraphics);
 }
 
 SalInfoPrinter* HaikuSalInstance::CreateInfoPrinter( SalPrinterQueueInfo* pQueueInfo,

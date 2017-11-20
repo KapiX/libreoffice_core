@@ -22,12 +22,23 @@
 
 #include <salvd.hxx>
 
-class SalGraphics;
+class HaikuSalGraphics;
 
 class HaikuSalVirtualDevice : public SalVirtualDevice
 {
+private:
+    BView *mpView;
+    BBitmap *mpBmp;
+    BBitmap *mpDefBmp;
+    HaikuSalGraphics *mpGraphics;
+    HaikuSalVirtualDevice *mpNext;
+    sal_uInt16 mnBitCount;
+    bool mbGraphics;
+    long mnWidth;
+    long mnHeight;
+
 public:
-    HaikuSalVirtualDevice();
+    HaikuSalVirtualDevice(HaikuSalGraphics *pGraphics);
     virtual ~HaikuSalVirtualDevice() override;
 
     // SalGraphics or NULL, but two Graphics for all SalVirtualDevices
@@ -38,8 +49,8 @@ public:
     // Set new size, without saving the old contents
     bool            SetSize( long nNewDX, long nNewDY ) override;
 
-    long int        GetWidth() const { return 800; }
-    long int        GetHeight() const { return 600; }
+    long int        GetWidth() const { return mnWidth; }
+    long int        GetHeight() const { return mnHeight; }
 };
 
 #endif // INCLUDED_VCL_INC_SALVD_HXX
