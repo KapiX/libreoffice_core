@@ -77,6 +77,7 @@ void HaikuSalLayout::DrawText( SalGraphics& rGraphics ) const
     BView* view = rHaikuGraphics.getView();
     Point pt = GetDrawPosition();
     BPoint p(pt.X(), pt.Y());
+    fprintf(stderr, "%d %d\n", pt.X(), pt.Y());
     if(view->Window()->LockLooper()) {
         view->SetFont(be_plain_font);
         view->SetHighColor(0, 0, 0, 255);

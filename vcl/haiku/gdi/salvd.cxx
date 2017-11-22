@@ -28,15 +28,25 @@
 
 HaikuSalVirtualDevice::HaikuSalVirtualDevice(HaikuSalGraphics *pGraphics)
 {
-    //mbGraphics = false;
-    //mpGraphics = pGraphics;
+    mbGraphics = false;
+    if(mpGraphics) {
+        BView* view = new BView("virtualdevice", B_WILL_DRAW);
+        // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        view->Hide();
+        if(pGraphics)
+            pGraphics->getView()->Window()->AddChild(view);
+        // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        mpGraphics = new HaikuSalGraphics(view);
+    }
     fprintf(stderr, "HaikuSalVirtualDevice::HaikuSalVirtualDevice()\n");
 }
 
 HaikuSalVirtualDevice::~HaikuSalVirtualDevice()
 {
-    //delete mpGraphics->getView();
-    //delete mpGraphics;
+    if(mpGraphics) {
+        delete mpGraphics->getView();
+        delete mpGraphics;
+    }
     fprintf(stderr, "HaikuSalVirtualDevice::~HaikuSalVirtualDevice()\n");
 }
 
@@ -44,7 +54,7 @@ SalGraphics* HaikuSalVirtualDevice::AcquireGraphics()
 {
     fprintf(stderr, "HaikuSalVirtualDevice::AcquireGraphics()\n");
 
-    //if ( mbGraphics )
+    if ( mbGraphics )
         return nullptr;
 
     if ( mpGraphics )
@@ -61,6 +71,8 @@ void HaikuSalVirtualDevice::ReleaseGraphics( SalGraphics* pGraphics )
 
 bool HaikuSalVirtualDevice::SetSize( long nNewDX, long nNewDY )
 {
-    fprintf(stderr, "HaikuSalVirtualDevice::SetSize(%l, %l)\n", nNewDX, nNewDY);
+    fprintf(stderr, "HaikuSalVirtualDevice::SetSize(%d, %d)\n", nNewDX, nNewDY);
+//    if(mpGraphics) {
+//        mpGraphics->view
     return true;
 }

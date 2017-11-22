@@ -77,7 +77,7 @@ sal_uInt16 HaikuSalGraphics::GetBitCount() const
 
 long HaikuSalGraphics::GetGraphicsWidth() const
 {
-    return 400;
+    return static_cast<long>(mpView->Frame().Width());
 }
 
 void HaikuSalGraphics::ResetClipRegion()
@@ -325,7 +325,12 @@ bool HaikuSalGraphics::setClipRegion( const vcl::Region& region )
 
 void HaikuSalGraphics::drawPixel( long nX, long nY )
 {
-    TRACE
+    BPoint start(nX, nY);
+    BPoint end(nX + 1, nY + 1);
+    if(mpView->Window()->LockLooper()) {
+        mpView->StrokeLine(start, end, B_SOLID_HIGH);
+        mpView->Window()->UnlockLooper();
+    }
 }
 
 void HaikuSalGraphics::drawPixel( long nX, long nY, SalColor nSalColor )

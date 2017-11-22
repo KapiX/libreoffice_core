@@ -94,10 +94,14 @@ void HaikuWindow::MessageReceived(BMessage* message)
 HaikuSalFrame::HaikuSalFrame(SalFrameStyleFlags nStyle)
 {
     fprintf(stderr, "HaikuSalFrame::HaikuSalFrame()\n");
-    mpWindow = new HaikuWindow(this);
+    uint32 flags = 0;
     if(nStyle & SalFrameStyleFlags::TOOLTIP) {
+        flags = B_AVOID_FOCUS;
+    }
+    mpWindow = new HaikuWindow(this, flags);
+    if(nStyle & SalFrameStyleFlags::FLOAT ||
+       nStyle & SalFrameStyleFlags::OWNERDRAWDECORATION) {
         mpWindow->SetLook(B_NO_BORDER_WINDOW_LOOK);
-        mpWindow->SetFlags(mpWindow->Flags() & B_AVOID_FOCUS);
     }
 
 //    if(nStyle & SalFrameStyleFlags::MOVEABLE) {
@@ -185,23 +189,28 @@ void HaikuSalFrame::SetPosSize( long nX, long nY, long nWidth, long nHeight,
 
     if(nFlags & (SAL_FRAME_POSSIZE_X | SAL_FRAME_POSSIZE_Y)) {
         nEvent = SalEvent::Move;
-        mpWindow->MoveTo(nX, nY);
     }
-    /*if(nFlags & (SAL_FRAME_POSSIZE_WIDTH | SAL_FRAME_POSSIZE_HEIGHT)) {
+    if(nFlags & (SAL_FRAME_POSSIZE_WIDTH | SAL_FRAME_POSSIZE_HEIGHT)) {
         nEvent = (nEvent == SalEvent::Move) ? SalEvent::MoveResize : SalEvent::Resize;
-        mpWindow->ResizeTo(nWidth, nHeight);
-    }*/
+    }
 
     if(nEvent != SalEvent::NONE)
         CallCallback(nEvent, nullptr);
-//    if ( !(nFlags & SAL_FRAME_POSSIZE_X) )
-//        aWindowRect.left = nX;
-//    if ( !(nFlags & SAL_FRAME_POSSIZE_Y) )
-//        aWindowRect.top = nY;
-//    if ( !(nFlags & SAL_FRAME_POSSIZE_WIDTH) )
-//        aWindowRect.right = aWindowRect.left + nWidth;
-//    if ( !(nFlags & SAL_FRAME_POSSIZE_HEIGHT) )
-//        aWindowRect.right = aWindowRect.top + nHeight;
+    if ( !(nFlags & SAL_FRAME_POSSIZE_X) )
+        aWindowRect.left = nX;
+    if ( !(nFlags & SAL_FRAME_POSSIZE_Y) )
+        aWindowRect.top = nY;
+    if ( !(nFlags & SAL_FRAME_POSSIZE_WIDTH) )
+        aWindowRect.right = aWindowRect.left + nWidth;
+    if ( !(nFlags & SAL_FRAME_POSSIZE_HEIGHT) )
+        aWindowRect.right = aWindowRect.top + nHeight;
+
+    if(nEvent == SalEvent::Move || nEvent == SalEvent::MoveResize) {
+        mpWindow->MoveTo(aWindowRect.left, aWindowRect.top);
+    }
+    if(nEvent == SalEvent::Resize || nEvent == SalEvent::MoveResize) {
+        mpWindow->ResizeTo(aWindowRect.Width(), aWindowRect.Height());
+    }
 }
 
 SalFrame* HaikuSalFrame::GetParent() const

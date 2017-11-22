@@ -29,9 +29,7 @@ class HaikuSalVirtualDevice : public SalVirtualDevice
 private:
     BView *mpView;
     BBitmap *mpBmp;
-    BBitmap *mpDefBmp;
     HaikuSalGraphics *mpGraphics;
-    HaikuSalVirtualDevice *mpNext;
     sal_uInt16 mnBitCount;
     bool mbGraphics;
     long mnWidth;

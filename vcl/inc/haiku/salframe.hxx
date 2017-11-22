@@ -48,8 +48,8 @@ class HaikuWindow : public BWindow
 private:
     HaikuSalFrame* mpFrame;
 public:
-    HaikuWindow(HaikuSalFrame* frame)
-        : BWindow(BRect(50, 50, 500, 500), "VCLWindow", B_DOCUMENT_WINDOW, 0),
+    HaikuWindow(HaikuSalFrame* frame, uint32 flags = 0)
+        : BWindow(BRect(50, 50, 500, 500), "VCLWindow", B_DOCUMENT_WINDOW, flags),
           mpFrame(frame)
         {}
     ~HaikuWindow() {}

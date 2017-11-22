@@ -244,13 +244,7 @@ SalVirtualDevice* HaikuSalInstance::CreateVirtualDevice( SalGraphics* pGraphics,
                                                          DeviceFormat eFormat, const SystemGraphicsData *pData )
 {
     fprintf(stderr, "HaikuSalInstance::CreateVirtualDevice()\n");
-    HaikuSalGraphics *pHGraphics = static_cast<HaikuSalGraphics*>(pGraphics);
-    /*BMessage archive;
-    pHGraphics->getView()->Archive(&archive);
-    fprintf(stderr, "getView(): %d\n", pHGraphics->getView());
-    BView* newView = new BView(&archive);
-    HaikuSalGraphics *newGraphics = new HaikuSalGraphics(newView);*/
-    return new HaikuSalVirtualDevice(pHGraphics);
+    return new HaikuSalVirtualDevice(static_cast<HaikuSalGraphics*>(pGraphics));
 }
 
 SalInfoPrinter* HaikuSalInstance::CreateInfoPrinter( SalPrinterQueueInfo* pQueueInfo,
