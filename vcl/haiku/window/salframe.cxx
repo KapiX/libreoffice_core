@@ -28,7 +28,7 @@
 
 HaikuView::HaikuView(BRect rect, HaikuSalFrame* pFrame)
     :
-    BView(rect, nullptr, B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FRAME_EVENTS | B_FULL_UPDATE_ON_RESIZE),
+    BView(rect, nullptr, B_FOLLOW_NONE, B_WILL_DRAW | B_FRAME_EVENTS | B_FULL_UPDATE_ON_RESIZE),
     mpFrame(pFrame)
 {
 }
@@ -39,10 +39,16 @@ HaikuView::~HaikuView()
 
 void HaikuView::Draw(BRect updateRect)
 {
-    SetViewColor(B_TRANSPARENT_COLOR);
-    SalPaintEvent aPEvt(updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height());
-    aPEvt.mbImmediateUpdate = false;
-    mpFrame->CallCallback(SalEvent::Paint, &aPEvt);
+    fprintf(stderr, "draw\n");
+        SetViewColor(B_TRANSPARENT_COLOR);
+        SalPaintEvent aPEvt(updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height());
+        aPEvt.mbImmediateUpdate = false;
+        mpFrame->CallCallback(SalEvent::Paint, &aPEvt);
+        DrawBitmap(mpFrame->mpPrivate->mpBmp, Bounds(), Bounds());
+        printf("----\n");
+        Bounds().PrintToStream();
+        updateRect.PrintToStream();
+        printf("----\n");
 }
 
 void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
@@ -53,6 +59,7 @@ void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
     aMouseEvt.mnCode    = 0;
     aMouseEvt.mnButton = 0;
     GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::MouseMove, &aMouseEvt);
+    Invalidate();
 }
 
 void HaikuView::MouseDown(BPoint point)
@@ -110,14 +117,22 @@ HaikuSalFrame::HaikuSalFrame(HaikuSalFrame *pParent, SalFrameStyleFlags nStyle)
     if(nStyle & SalFrameStyleFlags::FLOAT ||
        nStyle & SalFrameStyleFlags::OWNERDRAWDECORATION) {
         mpPrivate->mpWindow->SetLook(B_NO_BORDER_WINDOW_LOOK);
-    }if(nStyle & SalFrameStyleFlags::TOOLTIP || nStyle & SalFrameStyleFlags::FLOAT) {
+    }
+    if(nStyle & SalFrameStyleFlags::TOOLTIP || nStyle & SalFrameStyleFlags::FLOAT) {
         //mpPrivate->mpWindow->SetMouseEventMask(B_POINTER_EVENTS);
     }
+    BRect bounds = BScreen().Frame();
+    bounds.right++;
+    bounds.bottom++;
+    HaikuView* defView = new HaikuView(bounds, this);
+    mpPrivate->mpBmp = new BBitmap(bounds, B_RGB32, true);
+    mpPrivate->mpWindow->AddChild(defView);
 }
 
 HaikuSalFrame::~HaikuSalFrame()
 {
     fprintf(stderr, "HaikuSalFrame::~HaikuSalFrame()\n");
+    delete mpPrivate->mpBmp;
     if(mpPrivate->mpWindow->LockLooper()) {
         mpPrivate->mpWindow->Quit();
     }
@@ -127,18 +142,22 @@ HaikuSalFrame::~HaikuSalFrame()
 SalGraphics* HaikuSalFrame::AcquireGraphics()
 {
     fprintf(stderr, "HaikuSalFrame::AcquireGraphics()\n");
-    BRect bounds = mpPrivate->mpWindow->Bounds();
+    BRect bounds = BScreen().Frame();
     bounds.right++;
     bounds.bottom++;
-    HaikuView* defView = new HaikuView(bounds, this);
-    mpPrivate->mpWindow->AddChild(defView);
-    return new HaikuSalGraphics(defView);
+    BView* view = new BView(bounds, "drawing", B_FOLLOW_NONE, B_WILL_DRAW);
+    mpPrivate->mpBmp->AddChild(view);
+    return new HaikuSalGraphics(view);
 }
 
 void HaikuSalFrame::ReleaseGraphics( SalGraphics* pGraphics )
 {
     fprintf(stderr, "HaikuSalFrame::ReleaseGraphics()\n");
-    delete pGraphics;
+
+    HaikuSalGraphics *graphics = static_cast<HaikuSalGraphics*>(pGraphics);
+    //graphics->getView()->RemoveSelf();
+    //delete graphics->getView();
+    delete graphics;
 }
 
 bool HaikuSalFrame::PostEvent(ImplSVEvent* pData)

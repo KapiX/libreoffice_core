@@ -65,12 +65,14 @@ public:
 struct HaikuSalFramePrivate {
     HaikuWindow *mpWindow;
     HaikuSalFrame *mpParent;
-    int padding[24];
+    BBitmap* mpBmp;
+    int padding[22];
 };
 
 
 class HaikuSalFrame : public SalFrame
 {
+    friend class HaikuView;
 public:
     HaikuSalFrame(HaikuSalFrame* pParent, SalFrameStyleFlags nStyle);
     virtual ~HaikuSalFrame() override;

@@ -32,21 +32,19 @@ HaikuSalVirtualDevice::HaikuSalVirtualDevice(HaikuSalGraphics *pGraphics)
     mbGraphics = false;
     mpGraphics = nullptr;
     mbForeign = false;
-    // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //
     if(pGraphics) {
         if(pGraphics->getView()->Window()->LockLooper()) {
-            HaikuView* view = new HaikuView(pGraphics->getView()->Frame(), pGraphics->getView()->getFrame());
-            view->Hide();
-            pGraphics->getView()->Window()->AddChild(view);
+            BView* view = new BView(pGraphics->getView()->Bounds(), "drawing",
+                B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+            mpBmp = new BBitmap(pGraphics->getView()->Bounds(), B_RGB32, true);
             pGraphics->getView()->Window()->UnlockLooper();
+            mpBmp->AddChild(view);
             mpGraphics = new HaikuSalGraphics(view);
         }
     } else {
         mbForeign = true;
         mpGraphics = new HaikuSalGraphics(pGraphics->getView());
     }
-    // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     fprintf(stderr, "HaikuSalVirtualDevice::HaikuSalVirtualDevice()\n");
 }
 
@@ -54,17 +52,15 @@ HaikuSalVirtualDevice::~HaikuSalVirtualDevice()
 {
     if(mpGraphics) {
         if(mbForeign == false) {
-            /*if(mpGraphics->getView()) {
-                if(mpGraphics->getView()->Window()) {
-                    if(mpGraphics->getView()->Window()->LockLooper()) {
-                        mpGraphics->getView()->RemoveSelf();
-                        if(mpGraphics->getView()->Window()) {
-                            mpGraphics->getView()->Window()->UnlockLooper();
-                        }
-                    }
-                    delete mpGraphics->getView();
+            BWindow* window = mpGraphics->getView()->Window();
+            if(window) {
+                if(window->LockLooper()) {
+                    mpGraphics->getView()->RemoveSelf();
+                    window->UnlockLooper();
                 }
-            }*/
+            }
+            delete mpGraphics->getView();
+            delete mpBmp;
         }
         delete mpGraphics;
     }

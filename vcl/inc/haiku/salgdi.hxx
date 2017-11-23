@@ -30,7 +30,7 @@ class HaikuView;
 class HaikuSalGraphics : public SalGraphics
 {
 public:
-    HaikuSalGraphics(HaikuView* view);
+    HaikuSalGraphics(BView* view);
     virtual ~HaikuSalGraphics() override;
 
     SalGraphicsImpl* GetImpl() const override;
@@ -39,7 +39,7 @@ public:
 public:
     // public SalGraphics methods, the interface to the independent vcl part
 
-    HaikuView* getView() { return mpView; }
+    BView* getView() { return mpView; }
     // get device resolution
     virtual void            GetResolution( sal_Int32& rDPIX, sal_Int32& rDPIY ) override;
     // get the depth of the device
@@ -224,7 +224,7 @@ protected:
     virtual bool       drawAlphaRect( long nX, long nY, long nWidth, long nHeight, sal_uInt8 nTransparency ) override;
 private:
     std::unique_ptr<GlyphCache> mpGlyphCache;
-    HaikuView* mpView;
+    BView* mpView;
 };
 
 #endif

@@ -44,7 +44,7 @@
 #define TRACE printf("Trace:%s:%d - %s\n", __FILE__, __LINE__, __FUNCTION__);
 
 
-HaikuSalGraphics::HaikuSalGraphics(HaikuView* view)
+HaikuSalGraphics::HaikuSalGraphics(BView* view)
 {
     mpGlyphCache.reset(new GlyphCache);
     mpView = view;
@@ -327,6 +327,7 @@ bool HaikuSalGraphics::setClipRegion( const vcl::Region& region )
     BRegion r(BRect(rect.Left(), rect.Top(), rect.Right() + 1, rect.Bottom() + 1));
     if(mpView->Window()->LockLooper()) {
         mpView->ConstrainClippingRegion(&r);
+        mpView->Sync();
         mpView->Window()->UnlockLooper();
         return true;
     }
@@ -340,6 +341,7 @@ void HaikuSalGraphics::drawPixel( long nX, long nY )
     BPoint end(nX, nY);
     if(mpView->Window()->LockLooper()) {
         mpView->StrokeLine(start, end, B_SOLID_HIGH);
+        mpView->Sync();
         mpView->Window()->UnlockLooper();
     }
 }
@@ -356,6 +358,7 @@ void HaikuSalGraphics::drawLine( long nX1, long nY1, long nX2, long nY2 )
     BPoint end(nX2, nY2);
     if(mpView->Window()->LockLooper()) {
         mpView->StrokeLine(start, end, B_SOLID_HIGH);
+        mpView->Sync();
         mpView->Window()->UnlockLooper();
     }
 }
@@ -368,6 +371,7 @@ void HaikuSalGraphics::drawRect( long nX, long nY, long nWidth, long nHeight )
     if(mpView->Window()->LockLooper()) {
         mpView->StrokeRect(rect, B_SOLID_HIGH);
         mpView->FillRect(rect, B_SOLID_LOW);
+        mpView->Sync();
         mpView->Window()->UnlockLooper();
     }
 }
@@ -383,6 +387,7 @@ void HaikuSalGraphics::drawPolyLine( sal_uInt32 nPoints, const SalPoint* pPtAry 
             mpView->AddLine(pt1, pt2, mpView->HighColor());
         }
         mpView->EndLineArray();
+        mpView->Sync();
         mpView->Window()->UnlockLooper();
     }
 }
@@ -397,6 +402,7 @@ void HaikuSalGraphics::drawPolygon( sal_uInt32 nPoints, const SalPoint* pPtAry )
     if(mpView->Window()->LockLooper()) {
         mpView->StrokePolygon(points.data(), nPoints, false, B_SOLID_HIGH);
         mpView->FillPolygon(points.data(), nPoints, B_SOLID_LOW);
+        mpView->Sync();
         mpView->Window()->UnlockLooper();
     }
 }
@@ -455,13 +461,13 @@ void HaikuSalGraphics::copyArea( long nDestX, long nDestY, long nSrcX, long nSrc
 void HaikuSalGraphics::copyBits( const SalTwoRect& rPosAry, SalGraphics* pSrcGraphics )
 {
     TRACE
-    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
+    //drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
 }
 
 void HaikuSalGraphics::drawBitmap( const SalTwoRect& rPosAry, const SalBitmap& rSalBitmap )
 {
     TRACE
-    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
+    //drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
 }
 
 void HaikuSalGraphics::drawBitmap( const SalTwoRect& rPosAry,
@@ -469,7 +475,7 @@ void HaikuSalGraphics::drawBitmap( const SalTwoRect& rPosAry,
         const SalBitmap& rTransparentBitmap )
 {
     TRACE
-    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
+    //drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
 }
 
 void HaikuSalGraphics::drawMask( const SalTwoRect& rPosAry,
@@ -477,9 +483,8 @@ void HaikuSalGraphics::drawMask( const SalTwoRect& rPosAry,
       SalColor nMaskColor )
 {
     TRACE
-    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
+    //drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
 }
-
 
 SalBitmap*  HaikuSalGraphics::getBitmap( long nX, long nY, long nWidth, long nHeight )
 {
@@ -560,7 +565,7 @@ bool HaikuSalGraphics::drawAlphaBitmap( const SalTwoRect& rTR,
       const SalBitmap& rSourceBitmap,
       const SalBitmap& rAlphaBitmap )
 {
-    if(!mpView->Window()) return false;
+    //if(!mpView->Window()) return false;
     TRACE
     BRect src(rTR.mnSrcX, rTR.mnSrcY, rTR.mnSrcX + rTR.mnSrcWidth - 1, rTR.mnSrcY + rTR.mnSrcHeight - 1);
     BRect dest(rTR.mnDestX, rTR.mnDestY, rTR.mnDestX + rTR.mnDestWidth - 1, rTR.mnDestY + rTR.mnDestHeight - 1);
@@ -572,6 +577,7 @@ bool HaikuSalGraphics::drawAlphaBitmap( const SalTwoRect& rTR,
             mpView->SetDrawingMode(B_OP_ALPHA);
             mpView->DrawBitmap(aARGB.get(), src, dest);
             mpView->SetDrawingMode(B_OP_COPY);
+            mpView->Sync();
             mpView->Window()->UnlockLooper();
         }
         return true;

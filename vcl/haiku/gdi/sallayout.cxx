@@ -76,7 +76,7 @@ void HaikuSalLayout::DrawText( SalGraphics& rGraphics ) const
 {
 //    TRACE
     HaikuSalGraphics& rHaikuGraphics = static_cast<HaikuSalGraphics&>(rGraphics);
-    HaikuView* view = rHaikuGraphics.getView();
+    BView* view = rHaikuGraphics.getView();
     Point pt = GetDrawPosition();
     BPoint p(pt.X(), pt.Y());
     if(view->Window()->LockLooper()) {
