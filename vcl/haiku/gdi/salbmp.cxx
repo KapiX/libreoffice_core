@@ -138,13 +138,13 @@ BitmapBuffer* ImplCreateDIB(
 HaikuSalBitmap::HaikuSalBitmap()
     : mpDIB(nullptr), mpBitmap(nullptr)
 {
-    TRACE
+//    TRACE
 }
 
 
 HaikuSalBitmap::~HaikuSalBitmap()
 {
-    TRACE
+//    TRACE
     Destroy();
 }
 
@@ -153,7 +153,7 @@ bool HaikuSalBitmap::Create( const Size& rSize,
                              sal_uInt16 nBitCount,
                              const BitmapPalette& rPal )
 {
-    TRACE
+//    TRACE
     Destroy();
     mpDIB = ImplCreateDIB( rSize, nBitCount, rPal );
     return mpDIB != nullptr;
@@ -223,7 +223,7 @@ void HaikuSalBitmap::Destroy()
 
 Size HaikuSalBitmap::GetSize() const
 {
-    TRACE
+//    TRACE
     Size aSize;
 
     if (mpDIB)
@@ -237,7 +237,7 @@ Size HaikuSalBitmap::GetSize() const
 
 sal_uInt16 HaikuSalBitmap::GetBitCount() const
 {
-    TRACE
+//    TRACE
     sal_uInt16 nBitCount;
 
     if (mpDIB)
@@ -250,13 +250,13 @@ sal_uInt16 HaikuSalBitmap::GetBitCount() const
 
 BitmapBuffer* HaikuSalBitmap::AcquireBuffer( BitmapAccessMode nMode )
 {
-    TRACE
+//    TRACE
     return mpDIB;
 }
 
 void HaikuSalBitmap::ReleaseBuffer( BitmapBuffer* pBuffer, BitmapAccessMode nMode )
 {
-    TRACE
+//    TRACE
 }
 
 bool HaikuSalBitmap::GetSystemData( BitmapSystemData& rData )

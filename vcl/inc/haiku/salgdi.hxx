@@ -25,19 +25,21 @@
 #include <cstdio>
 
 class GlyphCache;
+class HaikuView;
 
 class HaikuSalGraphics : public SalGraphics
 {
 public:
-    HaikuSalGraphics(BView* view);
+    HaikuSalGraphics(HaikuView* view);
     virtual ~HaikuSalGraphics() override;
 
     SalGraphicsImpl* GetImpl() const override;
+    rgb_color mTextColor;
 
 public:
     // public SalGraphics methods, the interface to the independent vcl part
 
-    BView* getView() { return mpView; }
+    HaikuView* getView() { return mpView; }
     // get device resolution
     virtual void            GetResolution( sal_Int32& rDPIX, sal_Int32& rDPIY ) override;
     // get the depth of the device
@@ -222,8 +224,7 @@ protected:
     virtual bool       drawAlphaRect( long nX, long nY, long nWidth, long nHeight, sal_uInt8 nTransparency ) override;
 private:
     std::unique_ptr<GlyphCache> mpGlyphCache;
-    BView* mpView;
-
+    HaikuView* mpView;
 };
 
 #endif

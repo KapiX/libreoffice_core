@@ -44,7 +44,7 @@
 #define TRACE printf("Trace:%s:%d - %s\n", __FILE__, __LINE__, __FUNCTION__);
 
 
-HaikuSalGraphics::HaikuSalGraphics(BView* view)
+HaikuSalGraphics::HaikuSalGraphics(HaikuView* view)
 {
     mpGlyphCache.reset(new GlyphCache);
     mpView = view;
@@ -148,11 +148,15 @@ void HaikuSalGraphics::SetROPFillColor( SalROPColor nROPColor )
 void HaikuSalGraphics::SetTextColor( SalColor nSalColor )
 {
     TRACE
+    sal_uInt8 red = SALCOLOR_RED(nSalColor);
+    sal_uInt8 green = SALCOLOR_GREEN(nSalColor);
+    sal_uInt8 blue = SALCOLOR_BLUE(nSalColor);
+    mTextColor = (rgb_color) { red, green, blue, 255 };
 }
 
 void HaikuSalGraphics::SetFont( FontSelectPattern*, int nFallbackLevel )
 {
-    TRACE
+    //TRACE
 }
 
 
@@ -279,7 +283,7 @@ bool HaikuSalGraphics::GetGlyphOutline( sal_GlyphId, basegfx::B2DPolyPolygon& )
 
 SalLayout* HaikuSalGraphics::GetTextLayout( ImplLayoutArgs&, int nFallbackLevel )
 {
-    TRACE
+    //TRACE
     return new HaikuSalLayout();
 }
 void HaikuSalGraphics::DrawSalLayout( const CommonSalLayout& )
@@ -295,7 +299,7 @@ bool HaikuSalGraphics::supportsOperation( OutDevSupportType ) const
 // Query the platform layer for control support
 bool HaikuSalGraphics::IsNativeControlSupported( ControlType nType, ControlPart nPart )
 {
-    TRACE
+//    TRACE
     return false;
 }
 
@@ -314,7 +318,7 @@ void HaikuSalGraphics::updateSettingsNative( AllSettings& rSettings )
 bool HaikuSalGraphics::setClipRegion( const vcl::Region& region )
 {
     Rectangle rect = region.GetBoundRect();
-    BRegion r(BRect(rect.Left(), rect.Top(), rect.Right() - 1, rect.Bottom() - 1));
+    BRegion r(BRect(rect.Left(), rect.Top(), rect.Right() + 1, rect.Bottom() + 1));
     if(mpView->Window()->LockLooper()) {
         mpView->ConstrainClippingRegion(&r);
         mpView->Window()->UnlockLooper();
@@ -326,7 +330,7 @@ bool HaikuSalGraphics::setClipRegion( const vcl::Region& region )
 void HaikuSalGraphics::drawPixel( long nX, long nY )
 {
     BPoint start(nX, nY);
-    BPoint end(nX + 1, nY + 1);
+    BPoint end(nX, nY);
     if(mpView->Window()->LockLooper()) {
         mpView->StrokeLine(start, end, B_SOLID_HIGH);
         mpView->Window()->UnlockLooper();

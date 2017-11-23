@@ -41,6 +41,8 @@ public:
     void MouseDown(BPoint point);
     void MouseUp(BPoint point);
     void FrameResized(float width, float height);
+
+    HaikuSalFrame* getFrame() { return mpFrame; }
 };
 
 class HaikuWindow : public BWindow
@@ -57,12 +59,20 @@ public:
 };
 
 
+// proxy structure
+// FIXME Haiku does weird things when the data is in the class
+// when I added mpParent I started getting memory corruptions
+struct HaikuSalFramePrivate {
+    HaikuWindow *mpWindow;
+    HaikuSalFrame *mpParent;
+    int padding[24];
+};
+
+
 class HaikuSalFrame : public SalFrame
 {
-private:
-    HaikuWindow*    mpWindow;
 public:
-    HaikuSalFrame(SalFrameStyleFlags nStyle);
+    HaikuSalFrame(HaikuSalFrame* pParent, SalFrameStyleFlags nStyle);
     virtual ~HaikuSalFrame() override;
 
     virtual SalGraphics*        AcquireGraphics() override;
@@ -110,6 +120,10 @@ public:
     virtual void                BeginSetClipRegion( sal_uIntPtr nRects ) override;
     virtual void                UnionClipRegion( long nX, long nY, long nWidth, long nHeight ) override;
     virtual void                EndSetClipRegion() override;
+
+    void UpdateFrameGeometry();
+private:
+    HaikuSalFramePrivate*       mpPrivate;
 };
 
 

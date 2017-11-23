@@ -479,7 +479,7 @@ static const Pair nl_language_list[] = {
     { "WIN-SAMI-2",                 RTL_TEXTENCODING_DONTKNOW }     /* WS2 */
 };
 
-#elif defined(FREEBSD) || defined(DRAGONFLY)
+#elif defined(FREEBSD) || defined(DRAGONFLY) || defined(HAIKU)
 
 static const Pair nl_language_list[] = {
     { "ASCII",         RTL_TEXTENCODING_ASCII_US       }, /* US-ASCII */

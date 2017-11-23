@@ -213,13 +213,13 @@ void HaikuSalInstance::PostUserEvent( HaikuSalFrame* pFrame, SalEvent nType, voi
 SalFrame* HaikuSalInstance::CreateChildFrame( SystemParentData* pParent, SalFrameStyleFlags nStyle )
 {
     fprintf(stderr, "HaikuSalInstance::CreateChildFrame()\n");
-    return new HaikuSalFrame(nStyle);
+    return new HaikuSalFrame(nullptr, nStyle);
 }
 
 SalFrame* HaikuSalInstance::CreateFrame( SalFrame* pParent, SalFrameStyleFlags nStyle )
 {
     fprintf(stderr, "HaikuSalInstance::CreateFrame()\n");
-    return new HaikuSalFrame(nStyle);
+    return new HaikuSalFrame(static_cast<HaikuSalFrame*>(pParent), nStyle);
 }
 
 void HaikuSalInstance::DestroyFrame( SalFrame* pFrame )

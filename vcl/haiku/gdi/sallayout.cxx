@@ -21,6 +21,7 @@
 #include "osl/file.h"
 #include "osl/thread.h"
 
+#include <haiku/salframe.hxx>
 #include <haiku/sallayout.hxx>
 #include <haiku/salgdi.hxx>
 #include <outdev.h>
@@ -41,7 +42,7 @@ HaikuSalLayout::HaikuSalLayout()
     mpCharWidths( nullptr ),
     mnWidth( 0 )
 {
-    TRACE
+    //TRACE
 }
 
 HaikuSalLayout::~HaikuSalLayout()
@@ -55,32 +56,32 @@ HaikuSalLayout::~HaikuSalLayout()
 
 bool HaikuSalLayout::LayoutText( ImplLayoutArgs& rArgs )
 {
-    TRACE
+    //TRACE
     OString str(OUStringToOString(rArgs.mrStr, osl_getThreadTextEncoding()));
     mnWidth = be_plain_font->StringWidth(str.getStr());
     mnCharCount = rArgs.mnEndCharPos - rArgs.mnMinCharPos;
     mnGlyphCount = mnCharCount;
-    mpOutGlyphs = new char[ mnGlyphCount ];
+    mpOutGlyphs = new char[ mnGlyphCount + 1];
     mpGlyphAdvances = new int[ mnGlyphCount ];
 
     for( int i = 0; i < mnGlyphCount; ++i )
     {
         mpOutGlyphs[ i ] = str[ i ];
     }
+    mpOutGlyphs[mnGlyphCount] = 0;
     return true;
 }
 
 void HaikuSalLayout::DrawText( SalGraphics& rGraphics ) const
 {
-    TRACE
+//    TRACE
     HaikuSalGraphics& rHaikuGraphics = static_cast<HaikuSalGraphics&>(rGraphics);
-    BView* view = rHaikuGraphics.getView();
+    HaikuView* view = rHaikuGraphics.getView();
     Point pt = GetDrawPosition();
     BPoint p(pt.X(), pt.Y());
-    fprintf(stderr, "%d %d\n", pt.X(), pt.Y());
     if(view->Window()->LockLooper()) {
         view->SetFont(be_plain_font);
-        view->SetHighColor(0, 0, 0, 255);
+        view->SetHighColor(rHaikuGraphics.mTextColor);
         view->DrawString(mpOutGlyphs, p);
         view->Window()->UnlockLooper();
     }

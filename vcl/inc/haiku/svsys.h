@@ -18,6 +18,7 @@
 #include <Message.h>
 #include <Messenger.h>
 #include <Region.h>
+#include <Screen.h>
 #include <View.h>
 #include <Window.h>
 

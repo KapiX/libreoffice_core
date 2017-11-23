@@ -40,10 +40,9 @@ HaikuView::~HaikuView()
 void HaikuView::Draw(BRect updateRect)
 {
     SetViewColor(B_TRANSPARENT_COLOR);
-    SalPaintEvent aPEvt(0, 0, Bounds().Width(), Bounds().Height());
+    SalPaintEvent aPEvt(updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height());
     aPEvt.mbImmediateUpdate = false;
     mpFrame->CallCallback(SalEvent::Paint, &aPEvt);
-    //GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Paint, &aPEvt);
 }
 
 void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
@@ -80,6 +79,7 @@ void HaikuView::MouseUp(BPoint point)
 void HaikuView::FrameResized(float width, float height)
 {
     GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Resize, nullptr);
+    mpFrame->UpdateFrameGeometry();
 }
 
 void HaikuWindow::MessageReceived(BMessage* message)
@@ -91,38 +91,47 @@ void HaikuWindow::MessageReceived(BMessage* message)
     }
 }
 
-HaikuSalFrame::HaikuSalFrame(SalFrameStyleFlags nStyle)
+HaikuSalFrame::HaikuSalFrame(HaikuSalFrame *pParent, SalFrameStyleFlags nStyle)
 {
     fprintf(stderr, "HaikuSalFrame::HaikuSalFrame()\n");
+    mpPrivate = new HaikuSalFramePrivate;
+    mpPrivate->mpParent = pParent;
     uint32 flags = 0;
-    if(nStyle & SalFrameStyleFlags::TOOLTIP) {
-        flags = B_AVOID_FOCUS;
+    if(nStyle & SalFrameStyleFlags::TOOLTIP || nStyle & SalFrameStyleFlags::FLOAT) {
+        flags |= B_AVOID_FOCUS;
     }
-    mpWindow = new HaikuWindow(this, flags);
+    if(!(nStyle & SalFrameStyleFlags::MOVEABLE))
+        flags |= B_NOT_MOVABLE;
+    if(!(nStyle & SalFrameStyleFlags::SIZEABLE))
+        flags |= B_NOT_RESIZABLE;
+    if(!(nStyle & SalFrameStyleFlags::CLOSEABLE))
+        flags |= B_NOT_CLOSABLE;
+    mpPrivate->mpWindow = new HaikuWindow(this, flags);
     if(nStyle & SalFrameStyleFlags::FLOAT ||
        nStyle & SalFrameStyleFlags::OWNERDRAWDECORATION) {
-        mpWindow->SetLook(B_NO_BORDER_WINDOW_LOOK);
+        mpPrivate->mpWindow->SetLook(B_NO_BORDER_WINDOW_LOOK);
+    }if(nStyle & SalFrameStyleFlags::TOOLTIP || nStyle & SalFrameStyleFlags::FLOAT) {
+        //mpPrivate->mpWindow->SetMouseEventMask(B_POINTER_EVENTS);
     }
-
-//    if(nStyle & SalFrameStyleFlags::MOVEABLE) {
-//        mpWindow->SetLook(B_NO_BORDER_WINDOW_LOOK);
-//        mpWindow->SetFlags(mpWindow->Flags() & B_AVOID_FOCUS);
-//    }
 }
 
 HaikuSalFrame::~HaikuSalFrame()
 {
     fprintf(stderr, "HaikuSalFrame::~HaikuSalFrame()\n");
-    if(mpWindow->LockLooper()) {
-        mpWindow->Quit();
+    if(mpPrivate->mpWindow->LockLooper()) {
+        mpPrivate->mpWindow->Quit();
     }
+    delete mpPrivate;
 }
 
 SalGraphics* HaikuSalFrame::AcquireGraphics()
 {
     fprintf(stderr, "HaikuSalFrame::AcquireGraphics()\n");
-    HaikuView* defView = new HaikuView(mpWindow->Bounds(), this);
-    mpWindow->AddChild(defView);
+    BRect bounds = mpPrivate->mpWindow->Bounds();
+    bounds.right++;
+    bounds.bottom++;
+    HaikuView* defView = new HaikuView(bounds, this);
+    mpPrivate->mpWindow->AddChild(defView);
     return new HaikuSalGraphics(defView);
 }
 
@@ -141,7 +150,7 @@ bool HaikuSalFrame::PostEvent(ImplSVEvent* pData)
 void HaikuSalFrame::SetTitle( const OUString& rTitle )
 {
     OString aTitle(OUStringToOString(rTitle, osl_getThreadTextEncoding()));
-    mpWindow->SetTitle(aTitle.getStr());
+    mpPrivate->mpWindow->SetTitle(aTitle.getStr());
 }
 
 void HaikuSalFrame::SetIcon( sal_uInt16 nIcon )
@@ -166,7 +175,7 @@ void HaikuSalFrame::SetExtendedFrameStyle( SalExtStyle )
 
 void HaikuSalFrame::Show( bool bVisible, bool bNoActivate )
 {
-    mpWindow->Show();
+    mpPrivate->mpWindow->Show();
 }
 
 void HaikuSalFrame::SetMinClientSize( long nWidth, long nHeight )
@@ -182,10 +191,14 @@ void HaikuSalFrame::SetMaxClientSize( long nWidth, long nHeight )
 void HaikuSalFrame::SetPosSize( long nX, long nY, long nWidth, long nHeight,
                                 sal_uInt16 nFlags )
 {
-    fprintf(stderr, "HaikuSalFrame::SetPosSize(%d, %d, %d, %d, %d)\n", nX, nY, nWidth, nHeight, nFlags);
     SalEvent nEvent = SalEvent::NONE;
 
-    BRect aWindowRect = mpWindow->Frame();
+    BRect aWindowRect = mpPrivate->mpWindow->Frame();
+    BRect aParentRect = BScreen().Frame();
+    if(mpPrivate->mpParent) {
+        aParentRect = mpPrivate->mpParent->mpPrivate->mpWindow->Frame();
+        aParentRect.PrintToStream();
+    }
 
     if(nFlags & (SAL_FRAME_POSSIZE_X | SAL_FRAME_POSSIZE_Y)) {
         nEvent = SalEvent::Move;
@@ -196,38 +209,45 @@ void HaikuSalFrame::SetPosSize( long nX, long nY, long nWidth, long nHeight,
 
     if(nEvent != SalEvent::NONE)
         CallCallback(nEvent, nullptr);
-    if ( !(nFlags & SAL_FRAME_POSSIZE_X) )
-        aWindowRect.left = nX;
-    if ( !(nFlags & SAL_FRAME_POSSIZE_Y) )
-        aWindowRect.top = nY;
-    if ( !(nFlags & SAL_FRAME_POSSIZE_WIDTH) )
+    if ( (nFlags & SAL_FRAME_POSSIZE_X) )
+        aWindowRect.left = aParentRect.left + nX;
+    if ( (nFlags & SAL_FRAME_POSSIZE_Y) )
+        aWindowRect.top = aParentRect.top + nY;
+    if ( (nFlags & SAL_FRAME_POSSIZE_WIDTH) )
         aWindowRect.right = aWindowRect.left + nWidth;
-    if ( !(nFlags & SAL_FRAME_POSSIZE_HEIGHT) )
-        aWindowRect.right = aWindowRect.top + nHeight;
+    if ( (nFlags & SAL_FRAME_POSSIZE_HEIGHT) )
+        aWindowRect.bottom = aWindowRect.top + nHeight;
 
     if(nEvent == SalEvent::Move || nEvent == SalEvent::MoveResize) {
-        mpWindow->MoveTo(aWindowRect.left, aWindowRect.top);
+        mpPrivate->mpWindow->MoveTo(aWindowRect.left, aWindowRect.top);
     }
     if(nEvent == SalEvent::Resize || nEvent == SalEvent::MoveResize) {
-        mpWindow->ResizeTo(aWindowRect.Width(), aWindowRect.Height());
+        mpPrivate->mpWindow->ResizeTo(aWindowRect.Width(), aWindowRect.Height());
     }
+
+    UpdateFrameGeometry();
+
 }
 
 SalFrame* HaikuSalFrame::GetParent() const
 {
-    fprintf(stderr, "HaikuSalFrame::GetParent()\n");
-    return nullptr;
+    return mpPrivate->mpParent;
 }
 
 void HaikuSalFrame::GetWorkArea( Rectangle &rRect )
 {
-    fprintf(stderr, "HaikuSalFrame::GetWorkArea()\n");
+    // FIXME multiscreen support
+    BRect rect = BScreen().Frame();
+    rRect.Left() = static_cast<long>(rect.left);
+    rRect.Top() = static_cast<long>(rect.top);
+    rRect.Right() = static_cast<long>(rect.right);
+    rRect.Bottom() = static_cast<long>(rect.bottom);
 }
 
 void HaikuSalFrame::GetClientSize( long& rWidth, long& rHeight )
 {
-    rWidth = mpWindow->Bounds().Width();
-    rHeight = mpWindow->Bounds().Height();
+    rWidth = mpPrivate->mpWindow->Bounds().Width();
+    rHeight = mpPrivate->mpWindow->Bounds().Height();
 }
 
 void HaikuSalFrame::SetWindowState( const SalFrameState* pState )
@@ -279,7 +299,7 @@ void HaikuSalFrame::SetPointerPos( long nX, long nY )
 void HaikuSalFrame::Flush()
 {
     fprintf(stderr, "HaikuSalFrame::Flush()\n");
-    mpWindow->Flush();
+    mpPrivate->mpWindow->Flush();
 }
 
 void HaikuSalFrame::SetInputContext( SalInputContext* pContext )
@@ -350,6 +370,7 @@ void HaikuSalFrame::SimulateKeyPress( sal_uInt16 nKeyCode )
 void HaikuSalFrame::SetParent( SalFrame* pNewParent )
 {
     fprintf(stderr, "HaikuSalFrame::SetParent()\n");
+    mpPrivate->mpParent = static_cast<HaikuSalFrame*>(pNewParent);
 }
 
 bool HaikuSalFrame::SetPluginParent( SystemParentData* pNewParent )
@@ -386,3 +407,28 @@ void HaikuSalFrame::EndSetClipRegion()
 {
     fprintf(stderr, "HaikuSalFrame::EndSetClipRegion()\n");
 }
+
+void HaikuSalFrame::UpdateFrameGeometry()
+{
+    if (mpPrivate == NULL || mpPrivate->mpWindow == NULL)
+        return;
+
+    // FIXME multiscreen support
+    BRect aWindowRect = mpPrivate->mpWindow->Bounds();
+
+    maGeometry.nX = static_cast<int>(aWindowRect.left);
+    maGeometry.nY = static_cast<int>(aWindowRect.top);
+
+    /*maGeometry.nLeftDecoration = static_cast<unsigned int>(aContentRect.origin.x - aFrameRect.origin.x);
+    maGeometry.nRightDecoration = static_cast<unsigned int>((aFrameRect.origin.x + aFrameRect.size.width) -
+                                  (aContentRect.origin.x + aContentRect.size.width));
+
+    maGeometry.nTopDecoration = static_cast<unsigned int>(aContentRect.origin.y - aFrameRect.origin.y);
+    maGeometry.nBottomDecoration = static_cast<unsigned int>((aFrameRect.origin.y + aFrameRect.size.height) -
+                                   (aContentRect.origin.y + aContentRect.size.height));*/
+
+    maGeometry.nWidth = static_cast<unsigned int>(aWindowRect.Width());
+    maGeometry.nHeight = static_cast<unsigned int>(aWindowRect.Height());
+}
+
+

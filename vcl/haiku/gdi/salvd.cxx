@@ -23,6 +23,7 @@
 
 #include <haiku/saldata.hxx>
 #include <haiku/salinst.hxx>
+#include <haiku/salframe.hxx>
 #include <haiku/salgdi.hxx>
 #include <haiku/salvd.hxx>
 
@@ -30,13 +31,14 @@ HaikuSalVirtualDevice::HaikuSalVirtualDevice(HaikuSalGraphics *pGraphics)
 {
     mbGraphics = false;
     if(mpGraphics) {
-        BView* view = new BView("virtualdevice", B_WILL_DRAW);
         // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        view->Hide();
-        if(pGraphics)
+        //view->Hide();
+        if(pGraphics) {
+            HaikuView* view = new HaikuView(pGraphics->getView()->Frame(), pGraphics->getView()->getFrame());
             pGraphics->getView()->Window()->AddChild(view);
+            mpGraphics = new HaikuSalGraphics(view);
+        }
         // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        mpGraphics = new HaikuSalGraphics(view);
     }
     fprintf(stderr, "HaikuSalVirtualDevice::HaikuSalVirtualDevice()\n");
 }
