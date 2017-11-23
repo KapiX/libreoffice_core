@@ -30,10 +30,10 @@ $(eval $(call gb_Module_add_targets,vcl,\
 		$(if $(ENABLE_MACOSX_SANDBOX),, \
 			$(if $(ENABLE_HEADLESS),, \
 				Executable_ui-previewer)) \
-		$(if $(filter LINUX MACOSX SOLARIS WNT %BSD,$(OS)), \
+		$(if $(filter LINUX MACOSX SOLARIS WNT %BSD HAIKU,$(OS)), \
 			Executable_outdevgrind \
 			$(if $(ENABLE_HEADLESS),, \
-				Executable_vcldemo \
+				$(if $(filter-out HAIKU,$(OS)),Executable_vcldemo) \
 				Executable_icontest \
 				Executable_visualbackendtest \
 				Executable_mtfdemo ))) \

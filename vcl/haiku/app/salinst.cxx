@@ -39,10 +39,10 @@ void SalAbort( const OUString& rErrorText, bool bDumpCore )
 
     fprintf(stderr, "SalAbort: '%s'",
          OUStringToOString(aError, RTL_TEXTENCODING_ASCII_US).getStr());
-    if( bDumpCore )
-        abort();
-    else
-        _exit(1);
+    //if( bDumpCore )
+        debugger("BOOOOOOM");
+    /*else
+        _exit(1);*/
 }
 
 const OUString& SalGetDesktopEnvironment()
@@ -305,7 +305,7 @@ SalSystem* HaikuSalInstance::CreateSalSystem()
 
 SalBitmap* HaikuSalInstance::CreateSalBitmap()
 {
-    fprintf(stderr, "HaikuSalInstance::CreateSalBitmap()\n");
+//    fprintf(stderr, "HaikuSalInstance::CreateSalBitmap()\n");
     return new HaikuSalBitmap();
 }
 

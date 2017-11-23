@@ -29,6 +29,7 @@ class HaikuSalVirtualDevice : public SalVirtualDevice
 private:
     BView *mpView;
     BBitmap *mpBmp;
+    bool mbForeign;
     HaikuSalGraphics *mpGraphics;
     sal_uInt16 mnBitCount;
     bool mbGraphics;

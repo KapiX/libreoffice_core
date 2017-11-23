@@ -71,7 +71,7 @@ $(eval $(call gb_Helper_register_executables,NONE, \
         svpclient \
         pixelctl ) \
 	$(if $(and $(ENABLE_GTK3), $(filter LINUX %BSD SOLARIS,$(OS))), tilebench) \
-	$(if $(filter LINUX MACOSX SOLARIS WNT %BSD,$(OS)),icontest \
+	$(if $(filter LINUX MACOSX SOLARIS WNT %BSD HAIKU,$(OS)),icontest \
 	    outdevgrind) \
 	vcldemo \
 	tiledrendering \

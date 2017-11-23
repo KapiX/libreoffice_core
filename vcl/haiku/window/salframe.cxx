@@ -191,13 +191,19 @@ void HaikuSalFrame::SetMaxClientSize( long nWidth, long nHeight )
 void HaikuSalFrame::SetPosSize( long nX, long nY, long nWidth, long nHeight,
                                 sal_uInt16 nFlags )
 {
+    fprintf(stderr, "HaikuSalFrame::SetPosSize\n");
     SalEvent nEvent = SalEvent::NONE;
+
+    if(!mpPrivate->mpWindow->LockLooper())
+        return;
 
     BRect aWindowRect = mpPrivate->mpWindow->Frame();
     BRect aParentRect = BScreen().Frame();
     if(mpPrivate->mpParent) {
-        aParentRect = mpPrivate->mpParent->mpPrivate->mpWindow->Frame();
-        aParentRect.PrintToStream();
+        if(mpPrivate->mpParent->mpPrivate->mpWindow->LockLooper()) {
+            aParentRect = mpPrivate->mpParent->mpPrivate->mpWindow->Frame();
+            mpPrivate->mpParent->mpPrivate->mpWindow->UnlockLooper();
+        }
     }
 
     if(nFlags & (SAL_FRAME_POSSIZE_X | SAL_FRAME_POSSIZE_Y)) {
@@ -226,6 +232,8 @@ void HaikuSalFrame::SetPosSize( long nX, long nY, long nWidth, long nHeight,
     }
 
     UpdateFrameGeometry();
+
+    mpPrivate->mpWindow->UnlockLooper();
 
 }
 
@@ -314,7 +322,7 @@ void HaikuSalFrame::EndExtTextInput( EndExtTextInputFlags nFlags )
 
 OUString HaikuSalFrame::GetKeyName( sal_uInt16 nKeyCode )
 {
-    fprintf(stderr, "HaikuSalFrame::GetKeyName()\n");
+    //fprintf(stderr, "HaikuSalFrame::GetKeyName()\n");
     return OUString();
 }
 

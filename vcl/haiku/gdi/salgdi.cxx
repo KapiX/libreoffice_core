@@ -88,6 +88,7 @@ void HaikuSalGraphics::ResetClipRegion()
 
 void HaikuSalGraphics::SetLineColor()
 {
+    if(!mpView->Window()) return;
     if(mpView->Window()->LockLooper()) {
         mpView->SetHighColor(0, 0, 0, 0);
         mpView->Window()->UnlockLooper();
@@ -97,6 +98,7 @@ void HaikuSalGraphics::SetLineColor()
 
 void HaikuSalGraphics::SetLineColor( SalColor nSalColor )
 {
+    if(!mpView->Window()) return;
     sal_uInt8 red = SALCOLOR_RED(nSalColor);
     sal_uInt8 green = SALCOLOR_GREEN(nSalColor);
     sal_uInt8 blue = SALCOLOR_BLUE(nSalColor);
@@ -109,6 +111,7 @@ void HaikuSalGraphics::SetLineColor( SalColor nSalColor )
 
 void HaikuSalGraphics::SetFillColor()
 {
+    if(!mpView->Window()) return;
     if(mpView->Window()->LockLooper()) {
         mpView->SetLowColor(0, 0, 0, 0);
         mpView->Window()->UnlockLooper();
@@ -118,6 +121,7 @@ void HaikuSalGraphics::SetFillColor()
 
 void HaikuSalGraphics::SetFillColor( SalColor nSalColor )
 {
+    if(!mpView->Window()) return;
     sal_uInt8 red = SALCOLOR_RED(nSalColor);
     sal_uInt8 green = SALCOLOR_GREEN(nSalColor);
     sal_uInt8 blue = SALCOLOR_BLUE(nSalColor);
@@ -129,6 +133,7 @@ void HaikuSalGraphics::SetFillColor( SalColor nSalColor )
 
 void HaikuSalGraphics::SetXORMode( bool bSet )
 {
+    if(!mpView->Window()) return;
     if(mpView->Window()->LockLooper()) {
         mpView->SetDrawingMode(bSet ? B_OP_INVERT : B_OP_COPY);
         mpView->Window()->UnlockLooper();
@@ -317,6 +322,7 @@ void HaikuSalGraphics::updateSettingsNative( AllSettings& rSettings )
 
 bool HaikuSalGraphics::setClipRegion( const vcl::Region& region )
 {
+    if(!mpView->Window()) return false;
     Rectangle rect = region.GetBoundRect();
     BRegion r(BRect(rect.Left(), rect.Top(), rect.Right() + 1, rect.Bottom() + 1));
     if(mpView->Window()->LockLooper()) {
@@ -329,6 +335,7 @@ bool HaikuSalGraphics::setClipRegion( const vcl::Region& region )
 
 void HaikuSalGraphics::drawPixel( long nX, long nY )
 {
+    if(!mpView->Window()) return;
     BPoint start(nX, nY);
     BPoint end(nX, nY);
     if(mpView->Window()->LockLooper()) {
@@ -344,6 +351,7 @@ void HaikuSalGraphics::drawPixel( long nX, long nY, SalColor nSalColor )
 
 void HaikuSalGraphics::drawLine( long nX1, long nY1, long nX2, long nY2 )
 {
+    if(!mpView->Window()) return;
     BPoint start(nX1, nY1);
     BPoint end(nX2, nY2);
     if(mpView->Window()->LockLooper()) {
@@ -355,6 +363,7 @@ void HaikuSalGraphics::drawLine( long nX1, long nY1, long nX2, long nY2 )
 void HaikuSalGraphics::drawRect( long nX, long nY, long nWidth, long nHeight )
 {
     TRACE
+    if(!mpView->Window()) return;
     BRect rect(nX, nY, nX + nWidth - 1, nY + nHeight - 1);
     if(mpView->Window()->LockLooper()) {
         mpView->StrokeRect(rect, B_SOLID_HIGH);
@@ -365,11 +374,22 @@ void HaikuSalGraphics::drawRect( long nX, long nY, long nWidth, long nHeight )
 
 void HaikuSalGraphics::drawPolyLine( sal_uInt32 nPoints, const SalPoint* pPtAry )
 {
-    TRACE
+    if(!mpView->Window()) return;
+    if(mpView->Window()->LockLooper()) {
+        mpView->BeginLineArray(nPoints);
+        for(sal_uInt32 i = 0; i < nPoints - 1; i++) {
+            BPoint pt1 = BPoint(pPtAry[i].mnX, pPtAry[i].mnY);
+            BPoint pt2 = BPoint(pPtAry[i + 1].mnX, pPtAry[i + 1].mnY);
+            mpView->AddLine(pt1, pt2, mpView->HighColor());
+        }
+        mpView->EndLineArray();
+        mpView->Window()->UnlockLooper();
+    }
 }
 
 void HaikuSalGraphics::drawPolygon( sal_uInt32 nPoints, const SalPoint* pPtAry )
 {
+    if(!mpView->Window()) return;
     std::vector<BPoint> points;
     for(sal_uInt32 i = 0; i < nPoints; i++) {
         points.push_back(BPoint(pPtAry[i].mnX, pPtAry[i].mnY));
@@ -435,11 +455,13 @@ void HaikuSalGraphics::copyArea( long nDestX, long nDestY, long nSrcX, long nSrc
 void HaikuSalGraphics::copyBits( const SalTwoRect& rPosAry, SalGraphics* pSrcGraphics )
 {
     TRACE
+    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
 }
 
 void HaikuSalGraphics::drawBitmap( const SalTwoRect& rPosAry, const SalBitmap& rSalBitmap )
 {
     TRACE
+    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
 }
 
 void HaikuSalGraphics::drawBitmap( const SalTwoRect& rPosAry,
@@ -447,6 +469,7 @@ void HaikuSalGraphics::drawBitmap( const SalTwoRect& rPosAry,
         const SalBitmap& rTransparentBitmap )
 {
     TRACE
+    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
 }
 
 void HaikuSalGraphics::drawMask( const SalTwoRect& rPosAry,
@@ -454,6 +477,7 @@ void HaikuSalGraphics::drawMask( const SalTwoRect& rPosAry,
       SalColor nMaskColor )
 {
     TRACE
+    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
 }
 
 
@@ -536,6 +560,7 @@ bool HaikuSalGraphics::drawAlphaBitmap( const SalTwoRect& rTR,
       const SalBitmap& rSourceBitmap,
       const SalBitmap& rAlphaBitmap )
 {
+    if(!mpView->Window()) return false;
     TRACE
     BRect src(rTR.mnSrcX, rTR.mnSrcY, rTR.mnSrcX + rTR.mnSrcWidth - 1, rTR.mnSrcY + rTR.mnSrcHeight - 1);
     BRect dest(rTR.mnDestX, rTR.mnDestY, rTR.mnDestX + rTR.mnDestWidth - 1, rTR.mnDestY + rTR.mnDestHeight - 1);

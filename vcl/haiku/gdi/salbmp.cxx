@@ -211,7 +211,7 @@ bool HaikuSalBitmap::Create( const css::uno::Reference< css::rendering::XBitmapC
 
 void HaikuSalBitmap::Destroy()
 {
-    TRACE
+//    TRACE
     if (mpDIB)
     {
         delete[] mpDIB->mpBits;

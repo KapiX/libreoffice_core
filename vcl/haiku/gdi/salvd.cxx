@@ -30,23 +30,42 @@
 HaikuSalVirtualDevice::HaikuSalVirtualDevice(HaikuSalGraphics *pGraphics)
 {
     mbGraphics = false;
-    if(mpGraphics) {
-        // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //view->Hide();
-        if(pGraphics) {
+    mpGraphics = nullptr;
+    mbForeign = false;
+    // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //
+    if(pGraphics) {
+        if(pGraphics->getView()->Window()->LockLooper()) {
             HaikuView* view = new HaikuView(pGraphics->getView()->Frame(), pGraphics->getView()->getFrame());
+            view->Hide();
             pGraphics->getView()->Window()->AddChild(view);
+            pGraphics->getView()->Window()->UnlockLooper();
             mpGraphics = new HaikuSalGraphics(view);
         }
-        // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    } else {
+        mbForeign = true;
+        mpGraphics = new HaikuSalGraphics(pGraphics->getView());
     }
+    // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     fprintf(stderr, "HaikuSalVirtualDevice::HaikuSalVirtualDevice()\n");
 }
 
 HaikuSalVirtualDevice::~HaikuSalVirtualDevice()
 {
     if(mpGraphics) {
-        delete mpGraphics->getView();
+        if(mbForeign == false) {
+            /*if(mpGraphics->getView()) {
+                if(mpGraphics->getView()->Window()) {
+                    if(mpGraphics->getView()->Window()->LockLooper()) {
+                        mpGraphics->getView()->RemoveSelf();
+                        if(mpGraphics->getView()->Window()) {
+                            mpGraphics->getView()->Window()->UnlockLooper();
+                        }
+                    }
+                    delete mpGraphics->getView();
+                }
+            }*/
+        }
         delete mpGraphics;
     }
     fprintf(stderr, "HaikuSalVirtualDevice::~HaikuSalVirtualDevice()\n");
@@ -74,7 +93,11 @@ void HaikuSalVirtualDevice::ReleaseGraphics( SalGraphics* pGraphics )
 bool HaikuSalVirtualDevice::SetSize( long nNewDX, long nNewDY )
 {
     fprintf(stderr, "HaikuSalVirtualDevice::SetSize(%d, %d)\n", nNewDX, nNewDY);
-//    if(mpGraphics) {
-//        mpGraphics->view
+    if(mpGraphics) {
+        if(mpGraphics->getView()->Window()->LockLooper()) {
+            mpGraphics->getView()->ResizeTo(nNewDX, nNewDY);
+            mpGraphics->getView()->Window()->UnlockLooper();
+        }
+    }
     return true;
 }
