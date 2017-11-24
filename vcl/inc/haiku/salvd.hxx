@@ -26,6 +26,8 @@ class HaikuSalGraphics;
 
 class HaikuSalVirtualDevice : public SalVirtualDevice
 {
+    friend class HaikuSalGraphics; // FIXME HACK to get to BBitmap
+        // to copy the pixels
 private:
     BView *mpView;
     BBitmap *mpBmp;

@@ -39,11 +39,11 @@ HaikuSalVirtualDevice::HaikuSalVirtualDevice(HaikuSalGraphics *pGraphics)
             mpBmp = new BBitmap(pGraphics->getView()->Bounds(), B_RGB32, true);
             pGraphics->getView()->Window()->UnlockLooper();
             mpBmp->AddChild(view);
-            mpGraphics = new HaikuSalGraphics(view);
+            mpGraphics = new HaikuSalGraphics(view, this);
         }
     } else {
         mbForeign = true;
-        mpGraphics = new HaikuSalGraphics(pGraphics->getView());
+        mpGraphics = new HaikuSalGraphics(pGraphics->getView(), this);
     }
     fprintf(stderr, "HaikuSalVirtualDevice::HaikuSalVirtualDevice()\n");
 }

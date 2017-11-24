@@ -335,7 +335,20 @@ SalYieldResult HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvent
         // dispatch it
         if( aEvent.mpFrame )
         {
-            aEvent.mpFrame->CallCallback( aEvent.mnType, aEvent.mpData );
+            if (aEvent.mnType == SalEvent::Paint) {
+                printf("paint request\n");
+                SalPaintEvent const * pPaintEvt = static_cast<SalPaintEvent const *>(aEvent.mpData);
+                BRect updateRect;
+                updateRect.left = pPaintEvt->mnBoundX;
+                updateRect.top = pPaintEvt->mnBoundY;
+                updateRect.right = pPaintEvt->mnBoundX + pPaintEvt->mnBoundWidth + 1;
+                updateRect.bottom = pPaintEvt->mnBoundY + pPaintEvt->mnBoundHeight + 1;
+                updateRect.PrintToStream();
+                static_cast<HaikuSalFrame*>(aEvent.mpFrame)->Invalidate(updateRect);
+                delete pPaintEvt;
+            } else {
+                aEvent.mpFrame->CallCallback( aEvent.mnType, aEvent.mpData );
+            }
             osl_setCondition( maWaitingYieldCond );
             // return if only one event is asked for
             if( ! bHandleAllCurrentEvents )

@@ -73,6 +73,8 @@ struct HaikuSalFramePrivate {
 class HaikuSalFrame : public SalFrame
 {
     friend class HaikuView;
+    friend class HaikuSalGraphics; // FIXME HACK to get to BBitmap
+        // to copy the pixels
 public:
     HaikuSalFrame(HaikuSalFrame* pParent, SalFrameStyleFlags nStyle);
     virtual ~HaikuSalFrame() override;
@@ -124,6 +126,7 @@ public:
     virtual void                EndSetClipRegion() override;
 
     void UpdateFrameGeometry();
+    void Invalidate(BRect updateRect);
 private:
     HaikuSalFramePrivate*       mpPrivate;
 };

@@ -21,6 +21,8 @@
 #include "osl/file.h"
 #include "osl/thread.h"
 
+#include <haiku/saldata.hxx>
+#include <haiku/salinst.hxx>
 #include <haiku/salframe.hxx>
 #include <haiku/sallayout.hxx>
 #include <haiku/salgdi.hxx>
@@ -83,7 +85,14 @@ void HaikuSalLayout::DrawText( SalGraphics& rGraphics ) const
         view->SetFont(be_plain_font);
         view->SetHighColor(rHaikuGraphics.mTextColor);
         view->DrawString(mpOutGlyphs, p);
+        view->Sync();
         view->Window()->UnlockLooper();
+    }
+    // FIXME refactor to HaikuSalGraphics::RepaintRequest
+    if(rHaikuGraphics.mpFrame) {
+        SalPaintEvent *aPEvt = new SalPaintEvent(pt.X(), pt.Y(), 1000, 40); // FIXME
+        aPEvt->mbImmediateUpdate = false;
+        GetSalData()->mpFirstInstance->PostUserEvent(rHaikuGraphics.mpFrame, SalEvent::Paint, aPEvt);
     }
 }
 

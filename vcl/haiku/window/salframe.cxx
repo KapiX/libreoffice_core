@@ -28,7 +28,7 @@
 
 HaikuView::HaikuView(BRect rect, HaikuSalFrame* pFrame)
     :
-    BView(rect, nullptr, B_FOLLOW_NONE, B_WILL_DRAW | B_FRAME_EVENTS | B_FULL_UPDATE_ON_RESIZE),
+    BView(rect, nullptr, B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FRAME_EVENTS | B_FULL_UPDATE_ON_RESIZE),
     mpFrame(pFrame)
 {
 }
@@ -40,15 +40,9 @@ HaikuView::~HaikuView()
 void HaikuView::Draw(BRect updateRect)
 {
     fprintf(stderr, "draw\n");
-        SetViewColor(B_TRANSPARENT_COLOR);
-        SalPaintEvent aPEvt(updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height());
-        aPEvt.mbImmediateUpdate = false;
-        mpFrame->CallCallback(SalEvent::Paint, &aPEvt);
-        DrawBitmap(mpFrame->mpPrivate->mpBmp, Bounds(), Bounds());
-        printf("----\n");
-        Bounds().PrintToStream();
-        updateRect.PrintToStream();
-        printf("----\n");
+    //updateRect.PrintToStream();
+    SetViewColor(B_TRANSPARENT_COLOR);
+    DrawBitmap(mpFrame->mpPrivate->mpBmp, updateRect, updateRect); // updateRect?
 }
 
 void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
@@ -59,7 +53,6 @@ void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
     aMouseEvt.mnCode    = 0;
     aMouseEvt.mnButton = 0;
     GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::MouseMove, &aMouseEvt);
-    Invalidate();
 }
 
 void HaikuView::MouseDown(BPoint point)
@@ -124,7 +117,7 @@ HaikuSalFrame::HaikuSalFrame(HaikuSalFrame *pParent, SalFrameStyleFlags nStyle)
     BRect bounds = BScreen().Frame();
     bounds.right++;
     bounds.bottom++;
-    HaikuView* defView = new HaikuView(bounds, this);
+    HaikuView* defView = new HaikuView(mpPrivate->mpWindow->Bounds(), this);
     mpPrivate->mpBmp = new BBitmap(bounds, B_RGB32, true);
     mpPrivate->mpWindow->AddChild(defView);
 }
@@ -132,10 +125,10 @@ HaikuSalFrame::HaikuSalFrame(HaikuSalFrame *pParent, SalFrameStyleFlags nStyle)
 HaikuSalFrame::~HaikuSalFrame()
 {
     fprintf(stderr, "HaikuSalFrame::~HaikuSalFrame()\n");
-    delete mpPrivate->mpBmp;
     if(mpPrivate->mpWindow->LockLooper()) {
         mpPrivate->mpWindow->Quit();
     }
+    delete mpPrivate->mpBmp;
     delete mpPrivate;
 }
 
@@ -147,7 +140,7 @@ SalGraphics* HaikuSalFrame::AcquireGraphics()
     bounds.bottom++;
     BView* view = new BView(bounds, "drawing", B_FOLLOW_NONE, B_WILL_DRAW);
     mpPrivate->mpBmp->AddChild(view);
-    return new HaikuSalGraphics(view);
+    return new HaikuSalGraphics(view, this);
 }
 
 void HaikuSalFrame::ReleaseGraphics( SalGraphics* pGraphics )
@@ -155,8 +148,12 @@ void HaikuSalFrame::ReleaseGraphics( SalGraphics* pGraphics )
     fprintf(stderr, "HaikuSalFrame::ReleaseGraphics()\n");
 
     HaikuSalGraphics *graphics = static_cast<HaikuSalGraphics*>(pGraphics);
-    //graphics->getView()->RemoveSelf();
-    //delete graphics->getView();
+    BWindow* window = graphics->getView()->Window();
+    if(window->LockLooper()) {
+        graphics->getView()->RemoveSelf();
+        window->UnlockLooper();
+    }
+    delete graphics->getView();
     delete graphics;
 }
 
@@ -326,7 +323,9 @@ void HaikuSalFrame::SetPointerPos( long nX, long nY )
 void HaikuSalFrame::Flush()
 {
     fprintf(stderr, "HaikuSalFrame::Flush()\n");
-    mpPrivate->mpWindow->Flush();
+    mpPrivate->mpWindow->Sync();
+    BRect rect(mpPrivate->mpWindow->Bounds());
+    Invalidate(rect);
 }
 
 void HaikuSalFrame::SetInputContext( SalInputContext* pContext )
@@ -453,9 +452,20 @@ void HaikuSalFrame::UpdateFrameGeometry()
     maGeometry.nTopDecoration = static_cast<unsigned int>(aContentRect.origin.y - aFrameRect.origin.y);
     maGeometry.nBottomDecoration = static_cast<unsigned int>((aFrameRect.origin.y + aFrameRect.size.height) -
                                    (aContentRect.origin.y + aContentRect.size.height));*/
+    maGeometry.nLeftDecoration = -4;
+    maGeometry.nRightDecoration = -4;
+    maGeometry.nTopDecoration = -12;
+    maGeometry.nBottomDecoration = -4;
 
     maGeometry.nWidth = static_cast<unsigned int>(aWindowRect.Width());
     maGeometry.nHeight = static_cast<unsigned int>(aWindowRect.Height());
 }
 
-
+void HaikuSalFrame::Invalidate(BRect updateRect)
+{
+    // FIXME this is smelly
+    if(mpPrivate->mpWindow->LockLooper()) {
+        mpPrivate->mpWindow->ChildAt(0)->Invalidate(updateRect);
+        mpPrivate->mpWindow->UnlockLooper();
+    }
+}

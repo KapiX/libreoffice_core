@@ -26,11 +26,16 @@
 
 class GlyphCache;
 class HaikuView;
+class HaikuSalFrame;
+class HaikuSalVirtualDevice;
 
 class HaikuSalGraphics : public SalGraphics
 {
+    friend class HaikuSalLayout; // FIXME
 public:
     HaikuSalGraphics(BView* view);
+    HaikuSalGraphics(BView* view, HaikuSalFrame* frame);
+    HaikuSalGraphics(BView* view, HaikuSalVirtualDevice* vd);
     virtual ~HaikuSalGraphics() override;
 
     SalGraphicsImpl* GetImpl() const override;
@@ -225,6 +230,8 @@ protected:
 private:
     std::unique_ptr<GlyphCache> mpGlyphCache;
     BView* mpView;
+    HaikuSalFrame* mpFrame;
+    HaikuSalVirtualDevice* mpVirDev;
 };
 
 #endif

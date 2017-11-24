@@ -19,10 +19,13 @@
 
 #include <string.h>
 #include <svsys.h>
+#include <haiku/saldata.hxx>
+#include <haiku/salinst.hxx>
 #include <haiku/salbmp.hxx>
 #include <haiku/salgdi.hxx>
 #include <haiku/salframe.hxx>
 #include <haiku/sallayout.hxx>
+#include <haiku/salvd.hxx>
 #include <sallayout.hxx>
 #include <vcl/sysdata.hxx>
 #include <vcl/fontcharmap.hxx>
@@ -30,7 +33,6 @@
 
 #include "unx/printergfx.hxx"
 #include "unx/genpspgraphics.h"
-#include "unx/geninst.h"
 #include "unx/glyphcache.hxx"
 #include "unx/fc_fontoptions.hxx"
 #include "PhysicalFontFace.hxx"
@@ -48,6 +50,24 @@ HaikuSalGraphics::HaikuSalGraphics(BView* view)
 {
     mpGlyphCache.reset(new GlyphCache);
     mpView = view;
+    mpFrame = nullptr;
+    mpVirDev = nullptr;
+}
+
+HaikuSalGraphics::HaikuSalGraphics(BView* view, HaikuSalFrame* frame)
+{
+    mpGlyphCache.reset(new GlyphCache);
+    mpView = view;
+    mpFrame = frame;
+    mpVirDev = nullptr;
+}
+
+HaikuSalGraphics::HaikuSalGraphics(BView* view, HaikuSalVirtualDevice* vd)
+{
+    mpGlyphCache.reset(new GlyphCache);
+    mpView = view;
+    mpFrame = nullptr;
+    mpVirDev = vd;
 }
 
 HaikuSalGraphics::~HaikuSalGraphics()
@@ -90,7 +110,7 @@ void HaikuSalGraphics::SetLineColor()
 {
     if(!mpView->Window()) return;
     if(mpView->Window()->LockLooper()) {
-        mpView->SetHighColor(0, 0, 0, 0);
+        mpView->SetHighColor(0, 0, 0, 255);
         mpView->Window()->UnlockLooper();
     }
 }
@@ -113,7 +133,7 @@ void HaikuSalGraphics::SetFillColor()
 {
     if(!mpView->Window()) return;
     if(mpView->Window()->LockLooper()) {
-        mpView->SetLowColor(0, 0, 0, 0);
+        mpView->SetLowColor(0, 0, 0, 255);
         mpView->Window()->UnlockLooper();
     }
 }
@@ -344,6 +364,11 @@ void HaikuSalGraphics::drawPixel( long nX, long nY )
         mpView->Sync();
         mpView->Window()->UnlockLooper();
     }
+    if(mpFrame) {
+        SalPaintEvent *aPEvt = new SalPaintEvent(nX, nY, 1, 1);
+        aPEvt->mbImmediateUpdate = false;
+        GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Paint, aPEvt);
+    }
 }
 
 void HaikuSalGraphics::drawPixel( long nX, long nY, SalColor nSalColor )
@@ -361,6 +386,11 @@ void HaikuSalGraphics::drawLine( long nX1, long nY1, long nX2, long nY2 )
         mpView->Sync();
         mpView->Window()->UnlockLooper();
     }
+    if(mpFrame) {
+        SalPaintEvent *aPEvt = new SalPaintEvent(nX1, nY1, nX2 - nX1, nY2 - nY2);
+        aPEvt->mbImmediateUpdate = false;
+        GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Paint, aPEvt);
+    }
 }
 
 void HaikuSalGraphics::drawRect( long nX, long nY, long nWidth, long nHeight )
@@ -373,6 +403,11 @@ void HaikuSalGraphics::drawRect( long nX, long nY, long nWidth, long nHeight )
         mpView->FillRect(rect, B_SOLID_LOW);
         mpView->Sync();
         mpView->Window()->UnlockLooper();
+    }
+    if(mpFrame) {
+        SalPaintEvent *aPEvt = new SalPaintEvent(nX, nY, nWidth, nHeight);
+        aPEvt->mbImmediateUpdate = false;
+        GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Paint, aPEvt);
     }
 }
 
@@ -452,7 +487,13 @@ bool HaikuSalGraphics::drawPolyPolygonBezier( sal_uInt32 nPoly, const sal_uInt32
 void HaikuSalGraphics::copyArea( long nDestX, long nDestY, long nSrcX, long nSrcY, long nSrcWidth,
       long nSrcHeight, bool bWindowInvalidate )
 {
+    drawRect(nDestX, nDestY, nSrcWidth, nSrcHeight);
     TRACE
+    if(mpFrame) {
+        SalPaintEvent *aPEvt = new SalPaintEvent(nDestX, nDestY, nSrcWidth, nSrcHeight);
+        aPEvt->mbImmediateUpdate = false;
+        GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Paint, aPEvt);
+    }
 }
 
 
@@ -461,7 +502,46 @@ void HaikuSalGraphics::copyArea( long nDestX, long nDestY, long nSrcX, long nSrc
 void HaikuSalGraphics::copyBits( const SalTwoRect& rPosAry, SalGraphics* pSrcGraphics )
 {
     TRACE
-    //drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
+    BRect src(rPosAry.mnSrcX, rPosAry.mnSrcY, rPosAry.mnSrcX + rPosAry.mnSrcWidth - 1, rPosAry.mnSrcY + rPosAry.mnSrcHeight - 1);
+    BRect dest(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestX + rPosAry.mnDestWidth - 1, rPosAry.mnDestY + rPosAry.mnDestHeight - 1);
+    HaikuSalGraphics* pHSrcGraphics = static_cast<HaikuSalGraphics*>(pSrcGraphics);
+    if(pHSrcGraphics) {
+        // FIXME GIANT HACK
+        // HaikuSalFrame
+        if(pHSrcGraphics->mpFrame) {
+            BBitmap* bmp = pHSrcGraphics->mpFrame->mpPrivate->mpBmp;
+            if(bmp) {
+                if(mpView->Window()->LockLooper()) {
+                    mpView->SetDrawingMode(B_OP_COPY);
+                    mpView->DrawBitmap(pHSrcGraphics->mpFrame->mpPrivate->mpBmp, src, dest);
+                    mpView->SetDrawingMode(B_OP_COPY);
+                    mpView->Sync();
+                    mpView->Window()->UnlockLooper();
+                }
+            }
+        }
+        // HaikuSalVirtualDevice
+        else if(pHSrcGraphics->mpVirDev) {
+            BBitmap* bmp = pHSrcGraphics->mpVirDev->mpBmp;
+            if(bmp) {
+                if(mpView->Window()->LockLooper()) {
+                    mpView->SetDrawingMode(B_OP_COPY);
+                    mpView->DrawBitmap(pHSrcGraphics->mpVirDev->mpBmp, src, dest);
+                    mpView->SetDrawingMode(B_OP_COPY);
+                    mpView->Sync();
+                    mpView->Window()->UnlockLooper();
+                }
+            }
+        }
+        // FIXME GIANT HACK
+    }
+//    SetFillColor();
+//    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
+    if(mpFrame) {
+        SalPaintEvent *aPEvt = new SalPaintEvent(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
+        aPEvt->mbImmediateUpdate = false;
+        GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Paint, aPEvt);
+    }
 }
 
 void HaikuSalGraphics::drawBitmap( const SalTwoRect& rPosAry, const SalBitmap& rSalBitmap )
@@ -579,6 +659,11 @@ bool HaikuSalGraphics::drawAlphaBitmap( const SalTwoRect& rTR,
             mpView->SetDrawingMode(B_OP_COPY);
             mpView->Sync();
             mpView->Window()->UnlockLooper();
+        }
+        if(mpFrame) {
+            SalPaintEvent *aPEvt = new SalPaintEvent(dest.left, dest.top, dest.Width(), dest.Height());
+            aPEvt->mbImmediateUpdate = false;
+            GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Paint, aPEvt);
         }
         return true;
     }
