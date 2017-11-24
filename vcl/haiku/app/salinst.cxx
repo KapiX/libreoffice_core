@@ -362,6 +362,13 @@ SalYieldResult HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvent
 bool HaikuSalInstance::AnyInput( VclInputFlags nType )
 {
     fprintf(stderr, "HaikuSalInstance::AnyInput()\n");
+    /*if( nType & VclInputFlags::APPEVENT )
+    {
+        if( ! aAppEventList.empty() )
+            return true;
+        if( nType == VclInputFlags::APPEVENT )
+            return false;
+    }*/
     return false;
 }
 

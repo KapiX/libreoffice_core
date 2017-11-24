@@ -396,7 +396,7 @@ void HaikuSalGraphics::drawLine( long nX1, long nY1, long nX2, long nY2 )
 void HaikuSalGraphics::drawRect( long nX, long nY, long nWidth, long nHeight )
 {
     TRACE
-    if(!mpView->Window()) return;
+    if(!mpView->Window()) { fprintf(stderr, "oops no window\n"); return; }
     BRect rect(nX, nY, nX + nWidth - 1, nY + nHeight - 1);
     if(mpView->Window()->LockLooper()) {
         mpView->StrokeRect(rect, B_SOLID_HIGH);
@@ -535,8 +535,6 @@ void HaikuSalGraphics::copyBits( const SalTwoRect& rPosAry, SalGraphics* pSrcGra
         }
         // FIXME GIANT HACK
     }
-//    SetFillColor();
-//    drawRect(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
     if(mpFrame) {
         SalPaintEvent *aPEvt = new SalPaintEvent(rPosAry.mnDestX, rPosAry.mnDestY, rPosAry.mnDestWidth, rPosAry.mnDestHeight);
         aPEvt->mbImmediateUpdate = false;
