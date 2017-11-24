@@ -618,6 +618,11 @@ void HaikuSalFrame::UpdateFrameGeometry()
 
     maGeometry.nWidth = static_cast<unsigned int>(aWindowRect.Width());
     maGeometry.nHeight = static_cast<unsigned int>(aWindowRect.Height());
+
+    BRect bounds = aWindowRect;
+    SalPaintEvent aPEvt(bounds.left, bounds.top, bounds.Width(), bounds.Height());
+    aPEvt.mbImmediateUpdate = false;
+    CallCallback(SalEvent::Paint, &aPEvt);
 }
 
 void HaikuSalFrame::Invalidate(BRect updateRect)
