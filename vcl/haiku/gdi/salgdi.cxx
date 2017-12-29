@@ -52,6 +52,8 @@ HaikuSalGraphics::HaikuSalGraphics(BView* view)
     mpView = view;
     mpFrame = nullptr;
     mpVirDev = nullptr;
+    mpLineColor = MAKE_SALCOLOR(0xFF, 0xFF, 0xFF);
+    mpFillColor = MAKE_SALCOLOR(0x00, 0x00, 0x00);
 }
 
 HaikuSalGraphics::HaikuSalGraphics(BView* view, HaikuSalFrame* frame)
@@ -60,6 +62,8 @@ HaikuSalGraphics::HaikuSalGraphics(BView* view, HaikuSalFrame* frame)
     mpView = view;
     mpFrame = frame;
     mpVirDev = nullptr;
+    mpLineColor = MAKE_SALCOLOR(0xFF, 0xFF, 0xFF);
+    mpFillColor = MAKE_SALCOLOR(0x00, 0x00, 0x00);
 }
 
 HaikuSalGraphics::HaikuSalGraphics(BView* view, HaikuSalVirtualDevice* vd)
@@ -68,6 +72,8 @@ HaikuSalGraphics::HaikuSalGraphics(BView* view, HaikuSalVirtualDevice* vd)
     mpView = view;
     mpFrame = nullptr;
     mpVirDev = vd;
+    mpLineColor = MAKE_SALCOLOR(0xFF, 0xFF, 0xFF);
+    mpFillColor = MAKE_SALCOLOR(0x00, 0x00, 0x00);
 }
 
 HaikuSalGraphics::~HaikuSalGraphics()
@@ -113,6 +119,7 @@ void HaikuSalGraphics::SetLineColor()
         mpView->SetHighColor(0, 0, 0, 255);
         mpView->Window()->UnlockLooper();
     }
+    mpLineColor = SALCOLOR_NONE;
 }
 
 
@@ -136,6 +143,7 @@ void HaikuSalGraphics::SetFillColor()
         mpView->SetLowColor(0, 0, 0, 255);
         mpView->Window()->UnlockLooper();
     }
+    mpFillColor = SALCOLOR_NONE;
 }
 
 
@@ -397,10 +405,17 @@ void HaikuSalGraphics::drawRect( long nX, long nY, long nWidth, long nHeight )
 {
     TRACE
     if(!mpView->Window()) { fprintf(stderr, "oops no window\n"); return; }
+    if (SALCOLOR_NONE == mpFillColor && SALCOLOR_NONE == mpLineColor) {
+        return;
+    }
     BRect rect(nX, nY, nX + nWidth - 1, nY + nHeight - 1);
     if(mpView->Window()->LockLooper()) {
-        mpView->StrokeRect(rect, B_SOLID_HIGH);
-        mpView->FillRect(rect, B_SOLID_LOW);
+        if (SALCOLOR_NONE != mpFillColor) {
+            mpView->FillRect(rect, B_SOLID_LOW);
+        }
+        if (SALCOLOR_NONE != mpLineColor) {
+            mpView->StrokeRect(rect, B_SOLID_HIGH);
+        }
         mpView->Sync();
         mpView->Window()->UnlockLooper();
     }

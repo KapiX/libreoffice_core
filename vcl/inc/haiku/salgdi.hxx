@@ -232,6 +232,8 @@ private:
     BView* mpView;
     HaikuSalFrame* mpFrame;
     HaikuSalVirtualDevice* mpVirDev;
+    SalColor mpLineColor;
+    SalColor mpFillColor;
 };
 
 #endif
