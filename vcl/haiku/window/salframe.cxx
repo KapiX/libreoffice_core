@@ -181,8 +181,9 @@ void HaikuView::MouseUp(BPoint point)
     GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::MouseButtonUp, &aMouseEvt);
 }
 
-void HaikuView::KeyDown(char* bytes, int32 numBytes)
+void HaikuView::KeyDown(const char* bytes, int32 numBytes)
 {
+    fprintf(stderr, "HaikuSalFrame::KeyDown()\n");
     sal_Unicode keyChar = bytes[0];
     sal_uInt16 nKeyCode = ImplMapCharCode( keyChar );
     /*if (nKeyCode == 0)
@@ -205,7 +206,7 @@ void HaikuView::KeyDown(char* bytes, int32 numBytes)
     GetSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::KeyInput, &aEvent);
 }
 
-void HaikuView::KeyUp(char* bytes, int32 numBytes)
+void HaikuView::KeyUp(const char* bytes, int32 numBytes)
 {
     sal_Unicode keyChar = bytes[0];
     sal_uInt16 nKeyCode = ImplMapCharCode( keyChar );
@@ -462,6 +463,25 @@ void HaikuSalFrame::ToTop( SalFrameToTop nFlags )
     GetSalData()->mpFirstInstance->PostUserEvent(this, SalEvent::Paint, aPEvt);
     //mpPrivate->mpWindow->Sync();
     //Invalidate(rect);
+    // FIXME which child should be focused
+    if (nFlags & SalFrameToTop::GrabFocus) {
+        if (mpPrivate->mpWindow->LockLooper()) {
+            mpPrivate->mpWindow->Activate(true);
+            BView* view = mpPrivate->mpWindow->ChildAt(0);
+            if (view) {
+                view->MakeFocus(true);
+            }
+            mpPrivate->mpWindow->UnlockLooper();
+        }
+    } else if (nFlags & SalFrameToTop::GrabFocusOnly) {
+        if (mpPrivate->mpWindow->LockLooper()) {
+            BView* view = mpPrivate->mpWindow->ChildAt(0);
+            if (view) {
+                view->MakeFocus(true);
+            }
+            mpPrivate->mpWindow->UnlockLooper();
+        }
+    }
 }
 
 void HaikuSalFrame::SetPointer( PointerStyle ePointerStyle )

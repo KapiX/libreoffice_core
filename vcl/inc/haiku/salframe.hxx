@@ -40,8 +40,8 @@ public:
     void MouseMoved(BPoint point, uint32 transit, const BMessage* message);
     void MouseDown(BPoint point);
     void MouseUp(BPoint point);
-    void KeyDown(char* bytes, int32 numBytes);
-    void KeyUp(char* bytes, int32 numBytes);
+    void KeyDown(const char* bytes, int32 numBytes);
+    void KeyUp(const char* bytes, int32 numBytes);
     void FrameResized(float width, float height);
 
     HaikuSalFrame* getFrame() { return mpFrame; }
