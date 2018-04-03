@@ -17,23 +17,22 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#ifndef INCLUDED_VCL_INC_SVSYS_H
-#define INCLUDED_VCL_INC_SVSYS_H
+#ifndef INCLUDED_VCL_INC_HAIKU_SALTIMER_HXX
+#define INCLUDED_VCL_INC_HAIKU_SALTIMER_HXX
 
-#ifdef _WIN32
-#include "win/svsys.h"
-#elif defined MACOSX
-#include "osx/svsys.h"
-#elif defined IOS
-#include "ios/svsys.h"
-#elif defined ANDROID
-#include "android/svsys.h"
-#elif defined HAIKU
-#include "haiku/svsys.h"
-#elif defined LIBO_HEADLESS
-#else
-#include "unx/svsys.h"
-#endif
+#include <saltimer.hxx>
+
+#include <cstdio>
+
+class HaikuSalTimer : public SalTimer
+{
+public:
+    HaikuSalTimer() {}
+    virtual ~HaikuSalTimer() override {}
+
+    virtual void Start(sal_uIntPtr nMS) override { /*fprintf(stderr, "HaikuSalTimer::Start()\n");*/ }
+    virtual void Stop() override { /*fprintf(stderr, "HaikuSalTimer::Stop()\n");*/ }
+};
 
 #endif
 

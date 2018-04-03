@@ -17,24 +17,20 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#ifndef INCLUDED_VCL_INC_SVSYS_H
-#define INCLUDED_VCL_INC_SVSYS_H
+#ifndef INCLUDED_VCL_HAIKU_GDI_GLYPHCACHE_HXX
+#define INCLUDED_VCL_HAIKU_GDI_GLYPHCACHE_HXX
 
-#ifdef _WIN32
-#include "win/svsys.h"
-#elif defined MACOSX
-#include "osx/svsys.h"
-#elif defined IOS
-#include "ios/svsys.h"
-#elif defined ANDROID
-#include "android/svsys.h"
-#elif defined HAIKU
-#include "haiku/svsys.h"
-#elif defined LIBO_HEADLESS
-#else
-#include "unx/svsys.h"
-#endif
+#include "unx/glyphcache.hxx"
 
-#endif
+class HaikuGlyphCache : public GlyphCache
+{
+public:
+    explicit HaikuGlyphCache();
+    virtual ~HaikuGlyphCache() override;
+    static HaikuGlyphCache& GetInstance();
+    static void  KillInstance();
+};
+
+#endif // INCLUDED_VCL_HAIKU_GDI_GLYPHCACHE_HXX
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

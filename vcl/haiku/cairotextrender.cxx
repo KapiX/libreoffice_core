@@ -17,24 +17,17 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#ifndef INCLUDED_VCL_INC_SVSYS_H
-#define INCLUDED_VCL_INC_SVSYS_H
+#include "unx/cairotextrender.hxx"
 
-#ifdef _WIN32
-#include "win/svsys.h"
-#elif defined MACOSX
-#include "osx/svsys.h"
-#elif defined IOS
-#include "ios/svsys.h"
-#elif defined ANDROID
-#include "android/svsys.h"
-#elif defined HAIKU
-#include "haiku/svsys.h"
-#elif defined LIBO_HEADLESS
-#else
-#include "unx/svsys.h"
-#endif
+#include "unx/fc_fontoptions.hxx"
 
-#endif
+void FontConfigFontOptions::cairo_font_options_substitute(FcPattern* pPattern)
+{
+    /*ImplSVData* pSVData = ImplGetSVData();
+    const cairo_font_options_t* pFontOptions = pSVData->mpDefInst->GetCairoFontOptions();
+    if( !pFontOptions )
+        return;
+    cairo_ft_font_options_substitute(pFontOptions, pPattern);*/
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

@@ -17,23 +17,31 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#ifndef INCLUDED_VCL_INC_SVSYS_H
-#define INCLUDED_VCL_INC_SVSYS_H
+#ifndef INCLUDED_VCL_HAIKU_GDI_HAIKUCAIROTEXTRENDER_HXX
+#define INCLUDED_VCL_HAIKU_GDI_HAIKUCAIROTEXTRENDER_HXX
 
-#ifdef _WIN32
-#include "win/svsys.h"
-#elif defined MACOSX
-#include "osx/svsys.h"
-#elif defined IOS
-#include "ios/svsys.h"
-#elif defined ANDROID
-#include "android/svsys.h"
-#elif defined HAIKU
-#include "haiku/svsys.h"
-#elif defined LIBO_HEADLESS
-#else
-#include "unx/svsys.h"
-#endif
+#include "unx/cairotextrender.hxx"
+#include "haiku/salgdi.hxx"
+#include "salframe.hxx"
+
+class HaikuCairoTextRender : public CairoTextRender
+{
+protected:
+    HaikuSalGraphics& mrParent;
+
+protected:
+    size_t GetWidth() const;
+    size_t GetHeight() const;
+
+public:
+    explicit HaikuCairoTextRender(HaikuSalGraphics& rParent);
+
+    virtual GlyphCache& getPlatformGlyphCache() override;
+    virtual cairo_t* getCairoContext() override;
+    virtual void getSurfaceOffset(double& nDX, double& nDY) override;
+    virtual void clipRegion(cairo_t* cr) override;
+    virtual void releaseCairoContext(cairo_t* cr) override;
+};
 
 #endif
 

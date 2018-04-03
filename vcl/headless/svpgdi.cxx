@@ -1001,6 +1001,7 @@ static void AddPolygonToPath(
 
 void SvpSalGraphics::drawLine( long nX1, long nY1, long nX2, long nY2 )
 {
+    fprintf(stderr, "SvpSalGraphics::drawLine()\n");
     basegfx::B2DPolygon aPoly;
 
     // PixelOffset used: To not mix with possible PixelSnap, cannot do

@@ -17,24 +17,26 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#ifndef INCLUDED_VCL_INC_SVSYS_H
-#define INCLUDED_VCL_INC_SVSYS_H
+#include <svsys.h>
+#include "rtl/tencinfo.h"
+#include <unx/gendata.hxx>
+#include <vcl/svapp.hxx>
 
-#ifdef _WIN32
-#include "win/svsys.h"
-#elif defined MACOSX
-#include "osx/svsys.h"
-#elif defined IOS
-#include "ios/svsys.h"
-#elif defined ANDROID
-#include "android/svsys.h"
-#elif defined HAIKU
-#include "haiku/svsys.h"
-#elif defined LIBO_HEADLESS
-#else
-#include "unx/svsys.h"
-#endif
+#include "haiku/saldata.hxx"
+#include "haiku/salinst.hxx"
 
-#endif
+HaikuSalData::HaikuSalData( SalInstance *pInstance )
+    : GenericUnixSalData( SAL_DATA_SVP, pInstance )
+{
+    mpFirstInstance = static_cast<HaikuSalInstance*>(pInstance);
+    mpFirstFrame = nullptr;
+    mpFirstObject = nullptr;
+    mpFirstVD = nullptr;
+    mpFirstPrinter = nullptr;
+}
+
+HaikuSalData::~HaikuSalData()
+{
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
