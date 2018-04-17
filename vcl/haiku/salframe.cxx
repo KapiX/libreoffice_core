@@ -146,6 +146,18 @@ void HaikuView::Draw(BRect updateRect)
 {
     fprintf(stderr, "draw\n");
     //updateRect.PrintToStream();
+    cairo_surface_t* pSurface = mpFrame->mpPrivate->m_pSurface;
+    if(pSurface != nullptr) {
+        int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, Bounds().Width());
+        unsigned char* pBuffer = cairo_image_surface_get_data(mpFrame->mpPrivate->m_pSurface);
+        for(sal_uInt32 y = 0; y < Bounds().Height(); y++) {
+            unsigned char* pBufferStart = pBuffer +  y * stride;
+            unsigned char* pBmpBuf = static_cast<unsigned char*>(mpFrame->mpPrivate->mpBmp->Bits()) + y * mpFrame->mpPrivate->mpBmp->BytesPerRow();
+
+            memcpy(pBmpBuf, pBufferStart, Bounds().Width() * 4);
+        }
+    }
+
     SetViewColor(B_TRANSPARENT_COLOR);
     DrawBitmap(mpFrame->mpPrivate->mpBmp, updateRect, updateRect); // updateRect?
 }
@@ -235,7 +247,6 @@ void HaikuView::FrameResized(float width, float height)
     mpFrame->UpdateFrameGeometry();
     mpFrame->AllocateFrame();
     GetHaikuSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Resize, nullptr);
-    mpFrame->damaged(0, 0, width, height);
 }
 
 void HaikuWindow::MessageReceived(BMessage* message)
@@ -265,6 +276,7 @@ HaikuSalFrame::HaikuSalFrame(HaikuSalFrame *pParent, SalFrameStyleFlags nStyle)
     mpPrivate->mpParent = pParent;
     mpPrivate->m_aDamageHandler.handle = this;
     mpPrivate->m_aDamageHandler.damaged = ::damaged;
+
     uint32 flags = 0;
     if(nStyle & SalFrameStyleFlags::TOOLTIP || nStyle & SalFrameStyleFlags::FLOAT) {
         flags |= B_AVOID_FOCUS;
@@ -287,8 +299,8 @@ HaikuSalFrame::HaikuSalFrame(HaikuSalFrame *pParent, SalFrameStyleFlags nStyle)
     bounds.right++;
     bounds.bottom++;
     HaikuView* defView = new HaikuView(mpPrivate->mpWindow->Bounds(), this);
-    mpPrivate->mpBmp = new BBitmap(bounds, B_RGB32, true);
     mpPrivate->mpWindow->AddChild(defView);
+    mpPrivate->mpBmp = nullptr;
 }
 
 HaikuSalFrame::~HaikuSalFrame()
@@ -309,9 +321,9 @@ HaikuSalFrame::~HaikuSalFrame()
 
 SalGraphics* HaikuSalFrame::AcquireGraphics()
 {
-    fprintf(stderr, "HaikuSalFrame::AcquireGraphics()\n");
-    if( mpPrivate->m_bGraphics )
+    if( mpPrivate->m_bGraphics ) {
         return nullptr;
+        }
     /*BRect bounds = BScreen().Frame();
     bounds.right++;
     bounds.bottom++;
@@ -493,7 +505,7 @@ void HaikuSalFrame::ToTop( SalFrameToTop nFlags )
     //mpPrivate->mpWindow->Sync();
     //Invalidate(rect);
     // FIXME which child should be focused
-    if (nFlags & SalFrameToTop::GrabFocus) {
+    /*if (nFlags & SalFrameToTop::GrabFocus) {
         if (mpPrivate->mpWindow->LockLooper()) {
             mpPrivate->mpWindow->Activate(true);
             BView* view = mpPrivate->mpWindow->ChildAt(0);
@@ -510,7 +522,7 @@ void HaikuSalFrame::ToTop( SalFrameToTop nFlags )
             }
             mpPrivate->mpWindow->UnlockLooper();
         }
-    }
+    }*/
 }
 
 void HaikuSalFrame::SetPointer( PointerStyle ePointerStyle )
@@ -697,6 +709,10 @@ void HaikuSalFrame::AllocateFrame()
         if (mpPrivate->m_pSurface)
             cairo_surface_destroy(mpPrivate->m_pSurface);
 
+        if(mpPrivate->mpBmp)
+            delete mpPrivate->mpBmp;
+
+        mpPrivate->mpBmp = new BBitmap(BRect(0, 0, aFrameSize.getX(), aFrameSize.getY()), B_RGB32, true);
         mpPrivate->m_pSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                                        aFrameSize.getX(),
                                                        aFrameSize.getY());
@@ -714,8 +730,8 @@ void HaikuSalFrame::AllocateFrame()
 
 void HaikuSalFrame::TriggerPaintEvent()
 {
-    SalPaintEvent aPaintEvt(0, 0, maGeometry.nWidth, maGeometry.nHeight, true);
-    CallCallback(SalEvent::Paint, &aPaintEvt);
+    SalPaintEvent *aPaintEvt = new SalPaintEvent(0, 0, maGeometry.nWidth, maGeometry.nHeight, true);
+    GetHaikuSalData()->mpFirstInstance->PostUserEvent(this, SalEvent::Paint, aPaintEvt);
 }
 
 cairo_t* HaikuSalFrame::getCairoContext() const

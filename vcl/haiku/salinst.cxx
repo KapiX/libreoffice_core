@@ -15,8 +15,8 @@
 #include "haiku/salframe.hxx"
 #include "haiku/saltimer.hxx"
 #include "haiku/salsys.hxx"
-#include "haiku/salvd.hxx"
 #include <headless/svpbmp.hxx>
+#include <headless/svpvd.hxx>
 
 void InitSalData() {}
 void DeInitSalData() {}
@@ -149,7 +149,12 @@ SalVirtualDevice* HaikuSalInstance::CreateVirtualDevice( SalGraphics* pGraphics,
                                                          DeviceFormat eFormat, const SystemGraphicsData *pData )
 {
     fprintf(stderr, "HaikuSalInstance::CreateVirtualDevice()\n");
-    return new HaikuSalVirtualDevice(static_cast<HaikuSalGraphics*>(pGraphics));
+    (void) pData;
+    SvpSalGraphics *pSvpSalGraphics = dynamic_cast<SvpSalGraphics*>(pGraphics);
+    assert(pSvpSalGraphics);
+    SvpSalVirtualDevice* pNew = new SvpSalVirtualDevice(eFormat, pSvpSalGraphics->getScale());
+    pNew->SetSize( nDX, nDY );
+    return pNew;
 }
 
 SalInfoPrinter* HaikuSalInstance::CreateInfoPrinter( SalPrinterQueueInfo* pQueueInfo,
@@ -211,26 +216,28 @@ SalSystem* HaikuSalInstance::CreateSalSystem()
 SalBitmap* HaikuSalInstance::CreateSalBitmap()
 {
 //    fprintf(stderr, "HaikuSalInstance::CreateSalBitmap()\n");
-    return SvpSalInstance::CreateSalBitmap();;
+    return SvpSalInstance::CreateSalBitmap();
 }
 
 bool HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvents)
 {
     bool bDispatchUser = true;
     while( bDispatchUser ) {
-        SolarMutexReleaser aReleaser;
-
-        // get one user event
         SalUserEvent aEvent( nullptr, nullptr, SalEvent::NONE );
         {
-            osl::MutexGuard g( maUserEventListMutex );
-            if( ! maUserEvents.empty() )
+            SolarMutexReleaser aReleaser;
+
+            // get one user event
             {
-                aEvent = maUserEvents.front();
-                maUserEvents.pop_front();
+                osl::MutexGuard g( maUserEventListMutex );
+                if( ! maUserEvents.empty() )
+                {
+                    aEvent = maUserEvents.front();
+                    maUserEvents.pop_front();
+                }
+                else
+                    bDispatchUser = false;
             }
-            else
-                bDispatchUser = false;
         }
 
         // dispatch it
@@ -245,7 +252,7 @@ bool HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvents)
                 updateRect.right = pPaintEvt->mnBoundX + pPaintEvt->mnBoundWidth + 1;
                 updateRect.bottom = pPaintEvt->mnBoundY + pPaintEvt->mnBoundHeight + 1;
                 updateRect.PrintToStream();
-                static_cast<HaikuSalFrame*>(aEvent.mpFrame)->Invalidate(updateRect);
+                //static_cast<HaikuSalFrame*>(aEvent.mpFrame)->Invalidate(updateRect);
                 delete pPaintEvt;
             } else {
                 aEvent.mpFrame->CallCallback( aEvent.mnType, aEvent.mpData );
