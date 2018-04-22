@@ -146,15 +146,18 @@ void HaikuView::Draw(BRect updateRect)
 {
     fprintf(stderr, "draw\n");
     //updateRect.PrintToStream();
+    // TODO porządnie sprawdzić rozmiar mpBmp
     cairo_surface_t* pSurface = mpFrame->mpPrivate->m_pSurface;
+    BBitmap* pBmp = mpFrame->mpPrivate->mpBmp;
+    BRect bmpRect = pBmp->Bounds();
     if(pSurface != nullptr) {
-        int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, Bounds().Width());
+        int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, bmpRect.Width());
         unsigned char* pBuffer = cairo_image_surface_get_data(mpFrame->mpPrivate->m_pSurface);
-        for(sal_uInt32 y = 0; y < Bounds().Height(); y++) {
+        for(sal_uInt32 y = 0; y < bmpRect.Height(); y++) {
             unsigned char* pBufferStart = pBuffer +  y * stride;
             unsigned char* pBmpBuf = static_cast<unsigned char*>(mpFrame->mpPrivate->mpBmp->Bits()) + y * mpFrame->mpPrivate->mpBmp->BytesPerRow();
 
-            memcpy(pBmpBuf, pBufferStart, Bounds().Width() * 4);
+            memcpy(pBmpBuf, pBufferStart, bmpRect.Width() * 4);
         }
     }
 
@@ -169,7 +172,7 @@ void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
     aMouseEvt.mnY       = point.y;
     aMouseEvt.mnCode    = 0;
     aMouseEvt.mnButton = 0;
-    GetHaikuSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::MouseMove, &aMouseEvt);
+    GetHaikuSalData()->mpFirstInstance->PostEvent(mpFrame, &aMouseEvt, SalEvent::MouseMove);
 }
 
 void HaikuView::MouseDown(BPoint point)
@@ -179,7 +182,7 @@ void HaikuView::MouseDown(BPoint point)
     aMouseEvt.mnX       = point.x;
     aMouseEvt.mnY       = point.y;
     aMouseEvt.mnCode    = 0;
-    GetHaikuSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::MouseButtonDown, &aMouseEvt);
+    GetHaikuSalData()->mpFirstInstance->PostEvent(mpFrame, &aMouseEvt, SalEvent::MouseButtonDown);
 
 }
 
@@ -190,7 +193,7 @@ void HaikuView::MouseUp(BPoint point)
     aMouseEvt.mnX       = point.x;
     aMouseEvt.mnY       = point.y;
     aMouseEvt.mnCode    = 0;
-    GetHaikuSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::MouseButtonUp, &aMouseEvt);
+    GetHaikuSalData()->mpFirstInstance->PostEvent(mpFrame, &aMouseEvt, SalEvent::MouseButtonUp);
 }
 
 void HaikuView::KeyDown(const char* bytes, int32 numBytes)
@@ -215,7 +218,7 @@ void HaikuView::KeyDown(const char* bytes, int32 numBytes)
 //    aEvent.mnCharCode       = aChar;
     aEvent.mnCharCode       = keyChar;
     aEvent.mnRepeat         = FALSE;
-    GetHaikuSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::KeyInput, &aEvent);
+    //GetHaikuSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::KeyInput, &aEvent);
 }
 
 void HaikuView::KeyUp(const char* bytes, int32 numBytes)
@@ -239,14 +242,14 @@ void HaikuView::KeyUp(const char* bytes, int32 numBytes)
 //    aEvent.mnCharCode       = aChar;
     aEvent.mnCharCode       = keyChar;
     aEvent.mnRepeat         = FALSE;
-    GetHaikuSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::KeyUp, &aEvent);
+    //GetHaikuSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::KeyUp, &aEvent);
 }
 
 void HaikuView::FrameResized(float width, float height)
 {
     mpFrame->UpdateFrameGeometry();
     mpFrame->AllocateFrame();
-    GetHaikuSalData()->mpFirstInstance->PostUserEvent(mpFrame, SalEvent::Resize, nullptr);
+    GetHaikuSalData()->mpFirstInstance->PostEvent(mpFrame, nullptr, SalEvent::Resize);
 }
 
 void HaikuWindow::MessageReceived(BMessage* message)
@@ -276,6 +279,7 @@ HaikuSalFrame::HaikuSalFrame(HaikuSalFrame *pParent, SalFrameStyleFlags nStyle)
     mpPrivate->mpParent = pParent;
     mpPrivate->m_aDamageHandler.handle = this;
     mpPrivate->m_aDamageHandler.damaged = ::damaged;
+    GetHaikuSalData()->mpFirstInstance->insertFrame(this);
 
     uint32 flags = 0;
     if(nStyle & SalFrameStyleFlags::TOOLTIP || nStyle & SalFrameStyleFlags::FLOAT) {
@@ -309,6 +313,8 @@ HaikuSalFrame::~HaikuSalFrame()
     if(mpPrivate->mpWindow->LockLooper()) {
         mpPrivate->mpWindow->Quit();
     }
+
+    GetHaikuSalData()->mpFirstInstance->eraseFrame(this);
     delete mpPrivate->mpBmp;
 
     mpPrivate->m_pGraphics.reset();
@@ -355,7 +361,7 @@ void HaikuSalFrame::ReleaseGraphics( SalGraphics* pGraphics )
 
 bool HaikuSalFrame::PostEvent(ImplSVEvent* pData)
 {
-    GetHaikuSalData()->mpFirstInstance->PostUserEvent( this, SalEvent::UserEvent, pData );
+    GetHaikuSalData()->mpFirstInstance->PostEvent( this, pData, SalEvent::UserEvent );
     return true;
 }
 
@@ -499,9 +505,9 @@ void HaikuSalFrame::ToTop( SalFrameToTop nFlags )
 {
     fprintf(stderr, "HaikuSalFrame::ToTop()\n");
     BRect rect(mpPrivate->mpWindow->Bounds());
-    SalPaintEvent *aPEvt = new SalPaintEvent(rect.left, rect.top, rect.Width(), rect.Height());
-    aPEvt->mbImmediateUpdate = false;
-    GetHaikuSalData()->mpFirstInstance->PostUserEvent(this, SalEvent::Paint, aPEvt);
+    SalPaintEvent aPEvt(rect.left, rect.top, rect.Width(), rect.Height());
+    aPEvt.mbImmediateUpdate = false;
+    GetHaikuSalData()->mpFirstInstance->PostEvent(this, &aPEvt, SalEvent::Paint);
     //mpPrivate->mpWindow->Sync();
     //Invalidate(rect);
     // FIXME which child should be focused
@@ -681,12 +687,12 @@ void HaikuSalFrame::UpdateFrameGeometry()
     maGeometry.nHeight = static_cast<unsigned int>(aWindowRect.Height());
 
     BRect bounds = aWindowRect;
-    SalPaintEvent aPEvt(bounds.left, bounds.top, bounds.Width(), bounds.Height());
+/*    SalPaintEvent aPEvt(bounds.left, bounds.top, bounds.Width(), bounds.Height());
     aPEvt.mbImmediateUpdate = false;
-    CallCallback(SalEvent::Paint, &aPEvt);
+    CallCallback(SalEvent::Paint, &aPEvt);*/
 }
 
-void HaikuSalFrame::Invalidate(BRect updateRect)
+void HaikuSalFrame::Invalidate(BRect updateRect) const
 {
     // FIXME this is smelly
     if(mpPrivate->mpWindow->LockLooper()) {
@@ -730,8 +736,8 @@ void HaikuSalFrame::AllocateFrame()
 
 void HaikuSalFrame::TriggerPaintEvent()
 {
-    SalPaintEvent *aPaintEvt = new SalPaintEvent(0, 0, maGeometry.nWidth, maGeometry.nHeight, true);
-    GetHaikuSalData()->mpFirstInstance->PostUserEvent(this, SalEvent::Paint, aPaintEvt);
+    SalPaintEvent aPaintEvt(0, 0, maGeometry.nWidth, maGeometry.nHeight, true);
+    GetHaikuSalData()->mpFirstInstance->PostEvent(this, &aPaintEvt, SalEvent::Paint);
 }
 
 cairo_t* HaikuSalFrame::getCairoContext() const
@@ -746,7 +752,7 @@ void HaikuSalFrame::damaged(sal_Int32 nExtentsX, sal_Int32 nExtentsY,
 {
     fprintf(stderr, "HaikuSalFrame::damaged()\n");
 //#if OSL_DEBUG_LEVEL > 0
-    if (1)
+    if (0)
     {
         static int frame;
         OString tmp("/tmp/frame" + OString::number(frame++) + ".png");
@@ -757,5 +763,5 @@ void HaikuSalFrame::damaged(sal_Int32 nExtentsX, sal_Int32 nExtentsY,
 //#endif
 
     BRect updateRect(nExtentsX, nExtentsY, nExtentsX + nExtentsWidth, nExtentsY + nExtentsHeight);
-    //Invalidate(updateRect);
+    Invalidate(updateRect);
 }

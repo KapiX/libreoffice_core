@@ -21,10 +21,8 @@
 #include <svsys.h>
 #include <haiku/saldata.hxx>
 #include <haiku/salinst.hxx>
-#include <haiku/salbmp.hxx>
 #include <haiku/salgdi.hxx>
 #include <haiku/salframe.hxx>
-#include <haiku/salvd.hxx>
 #include <sallayout.hxx>
 #include <vcl/sysdata.hxx>
 #include <vcl/fontcharmap.hxx>
@@ -47,7 +45,6 @@
 HaikuSalGraphics::HaikuSalGraphics(BView* view)
     : SvpSalGraphics()
 {
-    mpGlyphCache.reset(new GlyphCache);
     mpView = view;
     mpFrame = nullptr;
     mpVirDev = nullptr;
@@ -56,7 +53,6 @@ HaikuSalGraphics::HaikuSalGraphics(BView* view)
 HaikuSalGraphics::HaikuSalGraphics(BView* view, HaikuSalFrame* frame)
     : SvpSalGraphics()
 {
-    mpGlyphCache.reset(new GlyphCache);
     mpView = view;
     mpFrame = frame;
     mpVirDev = nullptr;
@@ -65,7 +61,6 @@ HaikuSalGraphics::HaikuSalGraphics(BView* view, HaikuSalFrame* frame)
 HaikuSalGraphics::HaikuSalGraphics(BView* view, HaikuSalVirtualDevice* vd)
     : SvpSalGraphics()
 {
-    mpGlyphCache.reset(new GlyphCache);
     mpView = view;
     mpFrame = nullptr;
     mpVirDev = vd;
@@ -125,3 +120,8 @@ cairo::SurfaceSharedPtr HaikuSalGraphics::CreateSurface(const OutputDevice& /*rR
 
 #endif
 
+/*void HaikuSalGraphics::Invalidate(BRect updateRect) const
+{
+    if(mpFrame)
+        mpFrame->Invalidate(updateRect);
+}*/

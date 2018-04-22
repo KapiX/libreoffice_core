@@ -66,8 +66,8 @@ public:
     virtual cairo::SurfaceSharedPtr CreateSurface(const OutputDevice& rRefDevice, int x, int y, int width, int height) const override;
 
 #endif
+    //void Invalidate(BRect updateRect) const;
 private:
-    std::unique_ptr<GlyphCache> mpGlyphCache;
     BView* mpView;
     HaikuSalFrame* mpFrame;
     HaikuSalVirtualDevice* mpVirDev;

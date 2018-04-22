@@ -136,7 +136,7 @@ public:
     virtual void                EndSetClipRegion() override;
 
     void UpdateFrameGeometry();
-    void Invalidate(BRect updateRect);
+    void Invalidate(BRect updateRect) const;
     void AllocateFrame();
     void TriggerPaintEvent();
     cairo_t* getCairoContext() const;

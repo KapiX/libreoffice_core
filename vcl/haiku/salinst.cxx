@@ -215,56 +215,12 @@ SalSystem* HaikuSalInstance::CreateSalSystem()
 
 SalBitmap* HaikuSalInstance::CreateSalBitmap()
 {
-//    fprintf(stderr, "HaikuSalInstance::CreateSalBitmap()\n");
     return SvpSalInstance::CreateSalBitmap();
 }
 
 bool HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvents)
 {
-    bool bDispatchUser = true;
-    while( bDispatchUser ) {
-        SalUserEvent aEvent( nullptr, nullptr, SalEvent::NONE );
-        {
-            SolarMutexReleaser aReleaser;
-
-            // get one user event
-            {
-                osl::MutexGuard g( maUserEventListMutex );
-                if( ! maUserEvents.empty() )
-                {
-                    aEvent = maUserEvents.front();
-                    maUserEvents.pop_front();
-                }
-                else
-                    bDispatchUser = false;
-            }
-        }
-
-        // dispatch it
-        if( aEvent.mpFrame )
-        {
-            if (aEvent.mnType == SalEvent::Paint) {
-                printf("paint request\n");
-                SalPaintEvent const * pPaintEvt = static_cast<SalPaintEvent const *>(aEvent.mpData);
-                BRect updateRect;
-                updateRect.left = pPaintEvt->mnBoundX;
-                updateRect.top = pPaintEvt->mnBoundY;
-                updateRect.right = pPaintEvt->mnBoundX + pPaintEvt->mnBoundWidth + 1;
-                updateRect.bottom = pPaintEvt->mnBoundY + pPaintEvt->mnBoundHeight + 1;
-                updateRect.PrintToStream();
-                //static_cast<HaikuSalFrame*>(aEvent.mpFrame)->Invalidate(updateRect);
-                delete pPaintEvt;
-            } else {
-                aEvent.mpFrame->CallCallback( aEvent.mnType, aEvent.mpData );
-            }
-            osl_setCondition( maWaitingYieldCond );
-            // return if only one event is asked for
-            if( ! bHandleAllCurrentEvents )
-                return true;
-        }
-    }
-
-    return false;
+    return SvpSalInstance::DoYield(bWait, bHandleAllCurrentEvents);
 }
 
 bool HaikuSalInstance::AnyInput( VclInputFlags nType )
