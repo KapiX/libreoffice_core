@@ -120,8 +120,8 @@ cairo::SurfaceSharedPtr HaikuSalGraphics::CreateSurface(const OutputDevice& /*rR
 
 #endif
 
-/*void HaikuSalGraphics::Invalidate(BRect updateRect) const
+void HaikuSalGraphics::Invalidate() const
 {
     if(mpFrame)
-        mpFrame->Invalidate(updateRect);
-}*/
+        mpFrame->Invalidate();
+}

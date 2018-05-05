@@ -136,6 +136,7 @@ public:
     virtual void                EndSetClipRegion() override;
 
     void UpdateFrameGeometry();
+    void Invalidate() const;
     void Invalidate(BRect updateRect) const;
     void AllocateFrame();
     void TriggerPaintEvent();

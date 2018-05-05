@@ -66,7 +66,7 @@ public:
     virtual cairo::SurfaceSharedPtr CreateSurface(const OutputDevice& rRefDevice, int x, int y, int width, int height) const override;
 
 #endif
-    //void Invalidate(BRect updateRect) const;
+    void Invalidate() const;
 private:
     BView* mpView;
     HaikuSalFrame* mpFrame;
