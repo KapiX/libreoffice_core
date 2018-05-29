@@ -45,17 +45,6 @@ enum class SalEvent;
 class HaikuSalInstance : public SvpSalInstance
 {
 private:
-    struct SalUserEvent
-    {
-        HaikuSalFrame*  mpFrame;
-        void*           mpData;
-        SalEvent        mnType;
-
-        SalUserEvent( HaikuSalFrame* pFrame, void* pData, SalEvent nType ) :
-            mpFrame( pFrame ), mpData( pData ), mnType( nType )
-        {}
-    };
-
     HaikuApplication*                       mpApplication;
     bool                                    mbWaitingYield;
     std::list< SalUserEvent >               maUserEvents;
@@ -71,7 +60,7 @@ public:
     virtual void            DestroyFrame( SalFrame* pFrame ) override;
     virtual SalObject*      CreateObject( SalFrame* pParent, SystemWindowData* pWindowData, bool bShow ) override;
     virtual void            DestroyObject( SalObject* pObject ) override;
-    virtual SalVirtualDevice*   CreateVirtualDevice( SalGraphics* pGraphics,
+    virtual std::unique_ptr<SalVirtualDevice>   CreateVirtualDevice( SalGraphics* pGraphics,
                                                      long &nDX, long &nDY,
                                                      DeviceFormat eFormat, const SystemGraphicsData *pData = nullptr ) override;
     virtual SalInfoPrinter* CreateInfoPrinter( SalPrinterQueueInfo* pQueueInfo,
@@ -87,6 +76,7 @@ public:
     virtual SalSystem*          CreateSalSystem() override;
     virtual SalBitmap*          CreateSalBitmap() override;
 
+    virtual void                ProcessEvent(SalUserEvent aEvent) override;
     virtual bool                DoYield( bool bWait, bool bHandleAllCurrentEvents ) override;
     virtual bool                AnyInput( VclInputFlags nType ) override;
     virtual SalMenu*            CreateMenu( bool bMenuBar, Menu* ) override;

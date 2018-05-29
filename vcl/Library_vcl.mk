@@ -556,6 +556,7 @@ endif # ! DISABLE_GUI
 
 ifeq ($(OS),HAIKU)
 $(eval $(call gb_Library_add_exception_objects,vcl,\
+    vcl/source/app/salplug \
     vcl/unx/generic/printer/jobdata \
     vcl/unx/generic/printer/ppdparser \
     vcl/null/printerinfomanager \
@@ -572,10 +573,6 @@ $(eval $(call gb_Library_add_exception_objects,vcl,\
 
 $(eval $(call gb_Library_add_libs,vcl,\
     -lbe \
-))
-
-$(eval $(call gb_Library_add_exception_objects,vcl, \
-    $(if $(or $(ENABLE_QT5),$(ENABLE_KDE5)),vcl/source/app/salplug) \
 ))
 
 $(eval $(call gb_Library_use_externals,vcl,\

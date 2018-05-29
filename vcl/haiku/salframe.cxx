@@ -156,6 +156,7 @@ void HaikuView::MouseMoved(BPoint point, uint32 transit, const BMessage* message
     aMouseEvt.mnCode    = 0;
     aMouseEvt.mnButton = 0;
     GetHaikuSalData()->mpFirstInstance->PostEvent(mpFrame, &aMouseEvt, SalEvent::MouseMove);
+    //mpFrame->TriggerPaintEvent();
     Invalidate();
 }
 
@@ -452,7 +453,7 @@ void HaikuSalFrame::GetWorkArea( tools::Rectangle &rRect )
         static_cast<long>(rect.Width()), static_cast<long>(rect.Height()));
 }
 
-void HaikuSalFrame::GetClientSize( sal_Int32& rWidth, sal_Int32& rHeight )
+void HaikuSalFrame::GetClientSize( long& rWidth, long& rHeight )
 {
     rWidth = mpPrivate->mpWindow->Bounds().Width();
     rHeight = mpPrivate->mpWindow->Bounds().Height();
@@ -646,13 +647,17 @@ void HaikuSalFrame::UpdateFrameGeometry()
         return;
 
     // FIXME multiscreen support
-    BRect aWindowRect = mpPrivate->mpWindow->Bounds();
+    if(mpPrivate->mpWindow->LockLooper()) {
+        BRect aWindowRect = mpPrivate->mpWindow->Bounds();
 
-    maGeometry.nX = static_cast<int>(aWindowRect.left);
-    maGeometry.nY = static_cast<int>(aWindowRect.top);
+        maGeometry.nX = static_cast<int>(aWindowRect.left);
+        maGeometry.nY = static_cast<int>(aWindowRect.top);
 
-    maGeometry.nWidth = static_cast<unsigned int>(aWindowRect.Width());
-    maGeometry.nHeight = static_cast<unsigned int>(aWindowRect.Height());
+        maGeometry.nWidth = static_cast<unsigned int>(aWindowRect.Width());
+        maGeometry.nHeight = static_cast<unsigned int>(aWindowRect.Height());
+
+        mpPrivate->mpWindow->UnlockLooper();
+    }
 }
 
 void HaikuSalFrame::Invalidate() const

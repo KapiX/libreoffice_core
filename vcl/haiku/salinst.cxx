@@ -144,7 +144,7 @@ void HaikuSalInstance::DestroyObject( SalObject* pObject )
     fprintf(stderr, "HaikuSalInstance::DestroyObject()\n");
 }
 
-SalVirtualDevice* HaikuSalInstance::CreateVirtualDevice( SalGraphics* pGraphics,
+std::unique_ptr<SalVirtualDevice> HaikuSalInstance::CreateVirtualDevice( SalGraphics* pGraphics,
                                                          long &nDX, long &nDY,
                                                          DeviceFormat eFormat, const SystemGraphicsData *pData )
 {
@@ -152,9 +152,10 @@ SalVirtualDevice* HaikuSalInstance::CreateVirtualDevice( SalGraphics* pGraphics,
     (void) pData;
     SvpSalGraphics *pSvpSalGraphics = dynamic_cast<SvpSalGraphics*>(pGraphics);
     assert(pSvpSalGraphics);
-    SvpSalVirtualDevice* pNew = new SvpSalVirtualDevice(eFormat, pSvpSalGraphics->getScale());
-    pNew->SetSize( nDX, nDY );
-    return pNew;
+    std::unique_ptr<SalVirtualDevice> pVD(
+        new SvpSalVirtualDevice(eFormat, pSvpSalGraphics->getSurface()));
+    pVD->SetSize( nDX, nDY );
+    return pVD;
 }
 
 SalInfoPrinter* HaikuSalInstance::CreateInfoPrinter( SalPrinterQueueInfo* pQueueInfo,
@@ -216,6 +217,11 @@ SalSystem* HaikuSalInstance::CreateSalSystem()
 SalBitmap* HaikuSalInstance::CreateSalBitmap()
 {
     return SvpSalInstance::CreateSalBitmap();
+}
+
+void HaikuSalInstance::ProcessEvent(SalUserEvent aEvent)
+{
+    aEvent.m_pFrame->CallCallback(aEvent.m_nEvent, aEvent.m_pData);
 }
 
 bool HaikuSalInstance::DoYield(bool bWait, bool bHandleAllCurrentEvents)
