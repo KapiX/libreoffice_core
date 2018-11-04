@@ -130,6 +130,9 @@ $(eval $(call gb_Module_add_targets,vcl,\
     Library_vclplug_kde5 \
 ))
 endif
+$(eval $(call gb_Module_add_targets,vcl,\
+    Library_vclplug_haiku \
+))
 endif
 
 ifneq ($(ENABLE_FUZZERS),)

@@ -20,12 +20,12 @@
 #ifndef INCLUDED_VCL_INC_HAIKU_SALDATA_HXX
 #define INCLUDED_VCL_INC_HAIKU_SALDATA_HXX
 
-
 #include "osl/module.h"
 
 #include <unx/gendata.hxx>
 #include <svdata.hxx>
 #include <salwtype.hxx>
+#include <vclpluginapi.h>
 
 #include <set>
 #include <map>
@@ -35,29 +35,31 @@ class HaikuSalObject;
 class HaikuSalFrame;
 class HaikuSalVirtualDevice;
 class HaikuSalPrinter;
-namespace vcl { class Font; }
+namespace vcl
+{
+class Font;
+}
 
-class HaikuSalData : public GenericUnixSalData
+class VCLPLUG_HAIKU_PUBLIC HaikuSalData : public GenericUnixSalData
 {
 public:
-    HaikuSalData( SalInstance *pInstance );
+    HaikuSalData(SalInstance* pInstance);
     ~HaikuSalData();
 
-    HaikuSalInstance*         mpFirstInstance;        // pointer of first instance
-    HaikuSalFrame*            mpFirstFrame;           // pointer of first frame
-    HaikuSalObject*           mpFirstObject;          // pointer of first object window
-    HaikuSalVirtualDevice*    mpFirstVD;              // first VirDev
-    HaikuSalPrinter*          mpFirstPrinter;         // first printing printer
+    HaikuSalInstance* mpFirstInstance; // pointer of first instance
+    HaikuSalFrame* mpFirstFrame; // pointer of first frame
+    HaikuSalObject* mpFirstObject; // pointer of first object window
+    HaikuSalVirtualDevice* mpFirstVD; // first VirDev
+    HaikuSalPrinter* mpFirstPrinter; // first printing printer
 
     void ErrorTrapPush() {}
-    bool ErrorTrapPop( bool bIgnoreError = true ) { return false; }
+    bool ErrorTrapPop(bool bIgnoreError = true) { return false; }
 };
 
 inline HaikuSalData* GetHaikuSalData()
 {
     return static_cast<HaikuSalData*>(ImplGetSVData()->mpSalData);
 }
-
 
 #endif // INCLUDED_VCL_INC_HAIKU_SALDATA_HXX
 

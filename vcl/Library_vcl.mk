@@ -562,13 +562,6 @@ $(eval $(call gb_Library_add_exception_objects,vcl,\
     vcl/null/printerinfomanager \
     $(vcl_headless_code) \
     $(vcl_headless_freetype_code) \
-    vcl/haiku/saldata \
-    vcl/haiku/salinst \
-    vcl/haiku/salgdi \
-    vcl/haiku/salframe \
-    vcl/haiku/cairo_haiku_cairo \
-    vcl/opengl/haiku/HaikuDeviceInfo \
-    vcl/opengl/haiku/gdiimpl \
 ))
 
 $(eval $(call gb_Library_add_libs,vcl,\

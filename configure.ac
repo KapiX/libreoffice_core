@@ -3800,52 +3800,52 @@ if test -n "$enable_dbgutil" -a "$enable_dbgutil" != "no"; then
     MSVC_USE_DEBUG_RUNTIME="TRUE"
 
     AC_MSG_RESULT([yes])
-    # cppunit and graphite expose STL in public headers
-    if test "$with_system_cppunit" = "yes"; then
-        AC_MSG_ERROR([--with-system-cppunit conflicts with --enable-dbgutil])
-    else
-        with_system_cppunit=no
-    fi
-    if test "$with_system_graphite" = "yes"; then
-        AC_MSG_ERROR([--with-system-graphite conflicts with --enable-dbgutil])
-    else
-        with_system_graphite=no
-    fi
-    if test "$with_system_orcus" = "yes"; then
-        AC_MSG_ERROR([--with-system-orcus conflicts with --enable-dbgutil])
-    else
-        with_system_orcus=no
-    fi
-    if test "$with_system_libcmis" = "yes"; then
-        AC_MSG_ERROR([--with-system-libcmis conflicts with --enable-dbgutil])
-    else
-        with_system_libcmis=no
-    fi
-    if test "$with_system_hunspell" = "yes"; then
-        AC_MSG_ERROR([--with-system-hunspell conflicts with --enable-dbgutil])
-    else
-        with_system_hunspell=no
-    fi
-    if test "$with_system_gpgmepp" = "yes"; then
-        AC_MSG_ERROR([--with-system-gpgmepp conflicts with --enable-dbgutil])
-    else
-        with_system_gpgmepp=no
-    fi
-    # As mixing system libwps and non-system libnumbertext or vice versa likely causes trouble (see
-    # 603074c5f2b84de8a24593faf807da784b040625 "Pass _GLIBCXX_DEBUG into external/libwps" and the
-    # mail thread starting at <https://gcc.gnu.org/ml/gcc/2018-05/msg00057.html> "libstdc++: ODR
-    # violation when using std::regex with and without -D_GLIBCXX_DEBUG"), simply make sure neither
-    # of those two is using the system variant:
-    if test "$with_system_libnumbertext" = "yes"; then
-        AC_MSG_ERROR([--with-system-libnumbertext conflicts with --enable-dbgutil])
-    else
-        with_system_libnumbertext=no
-    fi
-    if test "$with_system_libwps" = "yes"; then
-        AC_MSG_ERROR([--with-system-libwps conflicts with --enable-dbgutil])
-    else
-        with_system_libwps=no
-    fi
+dnl    # cppunit and graphite expose STL in public headers
+dnl    if test "$with_system_cppunit" = "yes"; then
+dnl        AC_MSG_ERROR([--with-system-cppunit conflicts with --enable-dbgutil])
+dnl    else
+dnl        with_system_cppunit=no
+dnl    fi
+dnl    if test "$with_system_graphite" = "yes"; then
+dnl        AC_MSG_ERROR([--with-system-graphite conflicts with --enable-dbgutil])
+dnl    else
+dnl        with_system_graphite=no
+dnl    fi
+dnl    if test "$with_system_orcus" = "yes"; then
+dnl        AC_MSG_ERROR([--with-system-orcus conflicts with --enable-dbgutil])
+dnl    else
+dnl        with_system_orcus=no
+dnl    fi
+dnl    if test "$with_system_libcmis" = "yes"; then
+dnl        AC_MSG_ERROR([--with-system-libcmis conflicts with --enable-dbgutil])
+dnl    else
+dnl        with_system_libcmis=no
+dnl    fi
+dnl    if test "$with_system_hunspell" = "yes"; then
+dnl        AC_MSG_ERROR([--with-system-hunspell conflicts with --enable-dbgutil])
+dnl    else
+dnl        with_system_hunspell=no
+dnl    fi
+dnl    if test "$with_system_gpgmepp" = "yes"; then
+dnl        AC_MSG_ERROR([--with-system-gpgmepp conflicts with --enable-dbgutil])
+dnl    else
+dnl        with_system_gpgmepp=no
+dnl    fi
+dnl    # As mixing system libwps and non-system libnumbertext or vice versa likely causes trouble (see
+dnl    # 603074c5f2b84de8a24593faf807da784b040625 "Pass _GLIBCXX_DEBUG into external/libwps" and the
+dnl    # mail thread starting at <https://gcc.gnu.org/ml/gcc/2018-05/msg00057.html> "libstdc++: ODR
+dnl    # violation when using std::regex with and without -D_GLIBCXX_DEBUG"), simply make sure neither
+dnl    # of those two is using the system variant:
+dnl    if test "$with_system_libnumbertext" = "yes"; then
+dnl        AC_MSG_ERROR([--with-system-libnumbertext conflicts with --enable-dbgutil])
+dnl    else
+dnl        with_system_libnumbertext=no
+dnl    fi
+dnl    if test "$with_system_libwps" = "yes"; then
+dnl        AC_MSG_ERROR([--with-system-libwps conflicts with --enable-dbgutil])
+dnl    else
+dnl        with_system_libwps=no
+dnl    fi
 else
     ENABLE_DBGUTIL=""
     MSVC_USE_DEBUG_RUNTIME=""

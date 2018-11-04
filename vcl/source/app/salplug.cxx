@@ -253,6 +253,9 @@ SalInstance *CreateSalInstance()
 
     // fallback, try everything
     static const char* const pPlugin[] = {
+#ifdef HAIKU
+        "haiku",
+#endif
 #ifdef _WIN32
         "win"
 #else
